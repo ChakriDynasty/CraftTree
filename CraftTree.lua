@@ -70,23 +70,57 @@ local function FindCraftByName(query)
 end
 
 local function SuggestCraftNames(query, limit)
-	limit = limit or 8
+	limit = limit or 10
 	local out = {}
-	if not CraftTreeDB or not query or string.len(query) < 2 then
+	if not CraftTreeDB or not query then
 		return out
 	end
-	local lower = string.lower(query)
+	query = string.gsub(query, "^%s+", "")
+	query = string.gsub(query, "%s+$", "")
+	if query == "" or string.len(query) < 1 then
+		return out
+	end
+	-- Skip raw item links / pure IDs for suggest UI
+	if string.find(query, "item:") or string.find(query, "^%d+$") then
+		return out
+	end
+	local lower = string.lower(string.gsub(query, "’", "'"))
+	local starts, contains = {}, {}
 	local itemId, recipes
 	for itemId, recipes in pairs(CraftTreeDB) do
 		local n = recipes[1] and recipes[1].name
-		if n and string.find(string.lower(n), lower, 1, true) then
-		table.insert(out, n)
-			if table.getn(out) >= limit then
-				break
+		if n and n ~= "" then
+			local nl = string.lower(string.gsub(n, "’", "'"))
+			if string.sub(nl, 1, string.len(lower)) == lower then
+				table.insert(starts, { id = itemId, name = n })
+			elseif string.find(nl, lower, 1, true) then
+				table.insert(contains, { id = itemId, name = n })
 			end
 		end
 	end
+	local function byName(a, b)
+		return a.name < b.name
+	end
+	table.sort(starts, byName)
+	table.sort(contains, byName)
+	local i
+	for i = 1, table.getn(starts) do
+		table.insert(out, starts[i])
+		if table.getn(out) >= limit then
+			return out
+		end
+	end
+	for i = 1, table.getn(contains) do
+		table.insert(out, contains[i])
+		if table.getn(out) >= limit then
+			return out
+		end
+	end
 	return out
+end
+
+function CraftTree_GetSuggestions(query, limit)
+	return SuggestCraftNames(query, limit)
 end
 
 function CraftTree_ParseItemId(text)
@@ -440,6 +474,16 @@ function CraftTree_ShowReport(itemId, qty)
 end
 
 function CraftTree_OnInputEnter()
+	-- Prefer highlighted autocomplete entry when present
+	if CraftTree_TakeSuggestion then
+		local taken = CraftTree_TakeSuggestion()
+		if taken then
+			return
+		end
+	end
+	if CraftTree_HideSuggestions then
+		CraftTree_HideSuggestions()
+	end
 	local text = CraftTreeFrameInput and CraftTreeFrameInput:GetText() or ""
 	local qty = tonumber(CraftTreeFrameQty and CraftTreeFrameQty:GetText()) or 1
 	local itemId = ParseItemId(text)
@@ -448,7 +492,12 @@ function CraftTree_OnInputEnter()
 		local name = NormalizeName(text)
 		local suggestions = SuggestCraftNames(name, 5)
 		if table.getn(suggestions) > 0 then
-			msg = msg .. " Similar: " .. table.concat(suggestions, ", ")
+			local names = {}
+			local i
+			for i = 1, table.getn(suggestions) do
+				table.insert(names, suggestions[i].name)
+			end
+			msg = msg .. " Similar: " .. table.concat(names, ", ")
 		end
 		CraftTreeFrame:Show()
 		if CraftTree_ShowMessage then

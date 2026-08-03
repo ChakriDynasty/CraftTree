@@ -42,7 +42,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentHint" inherits="GameFontDisableSmall" text="Window open: Shift-click bag/chat items  ·  Alt+Shift = normal link/split">
+				<FontString name="$parentHint" inherits="GameFontDisableSmall" text="Type to search · Shift-click bags/AtlasLoot · Tab cycles suggestions">
 					<Anchors>
 						<Anchor point="TOP">
 							<Offset>
@@ -140,11 +140,25 @@
 								CraftTree_OnInputEnter()
 							</OnEnterPressed>
 							<OnEscapePressed>
-								this:ClearFocus()
+								if CraftTree_HideSuggestions and CraftTree_SuggestionsVisible and CraftTree_SuggestionsVisible() then
+									CraftTree_HideSuggestions()
+								else
+									this:ClearFocus()
+								end
 							</OnEscapePressed>
 							<OnEditFocusGained>
 								this:HighlightText()
+								if CraftTree_UpdateSuggestions then CraftTree_UpdateSuggestions() end
 							</OnEditFocusGained>
+							<OnEditFocusLost>
+								if CraftTree_HideSuggestionsDelayed then CraftTree_HideSuggestionsDelayed() end
+							</OnEditFocusLost>
+							<OnTextChanged>
+								if CraftTree_UpdateSuggestions then CraftTree_UpdateSuggestions() end
+							</OnTextChanged>
+							<OnTabPressed>
+								if CraftTree_SuggestTab then CraftTree_SuggestTab() end
+							</OnTabPressed>
 						</Scripts>
 					</EditBox>
 				</Frames>

@@ -323,6 +323,7 @@ function CraftTree_InitUI()
 	for i = 1, MAX_SHOP_SLOTS do
 		shopSlots[i] = CreateShopSlot(i)
 	end
+	CraftTree_InitSuggestions()
 	uiReady = true
 end
 
@@ -550,10 +551,213 @@ end
 
 function CraftTree_RenderResult(itemId, qty, node, shopping)
 	CraftTree_InitUI()
+	CraftTree_HideSuggestions()
 	lastRender = { itemId = itemId, qty = qty, node = node, shopping = shopping }
 	SetGoal(itemId, qty, node)
 	RenderTree(node)
 	RenderShop(shopping or {})
+end
+
+------------------------------------------------------------------------
+-- Autocomplete suggestions
+------------------------------------------------------------------------
+
+local MAX_SUGGEST = 10
+local SUGGEST_ROW = 20
+local suggestFrame = nil
+local suggestButtons = {}
+local suggestList = {}
+local suggestIndex = 0
+local suggestIgnore = nil
+local hideSuggestAt = nil
+
+local function HighlightSuggest(index)
+	suggestIndex = index or 0
+	local i
+	for i = 1, table.getn(suggestButtons) do
+		local btn = suggestButtons[i]
+		if btn.hl then
+			if i == suggestIndex then
+				btn.hl:SetAlpha(0.6)
+				if btn.label then
+					btn.label:SetTextColor(1, 1, 1)
+				end
+			else
+				btn.hl:SetAlpha(0)
+				if btn.label then
+					btn.label:SetTextColor(1, 0.82, 0)
+				end
+			end
+		end
+	end
+end
+
+function CraftTree_HideSuggestions()
+	if suggestFrame then
+		suggestFrame:Hide()
+	end
+	suggestList = {}
+	suggestIndex = 0
+	hideSuggestAt = nil
+end
+
+function CraftTree_SuggestionsVisible()
+	return suggestFrame and suggestFrame:IsShown()
+end
+
+function CraftTree_HideSuggestionsDelayed()
+	-- Allow click on a suggestion before focus-loss hides the list
+	hideSuggestAt = GetTime() + 0.2
+	if not suggestFrame then
+		return
+	end
+	suggestFrame:SetScript("OnUpdate", function()
+		if hideSuggestAt and GetTime() >= hideSuggestAt then
+			this:SetScript("OnUpdate", nil)
+			CraftTree_HideSuggestions()
+		end
+	end)
+end
+
+local function ApplySuggestion(entry)
+	if not entry then
+		return false
+	end
+	suggestIgnore = entry.name
+	CraftTree_HideSuggestions()
+	if CraftTreeFrameInput then
+		CraftTreeFrameInput:SetText(entry.name)
+		CraftTreeFrameInput:ClearFocus()
+	end
+	local qty = tonumber(CraftTreeFrameQty and CraftTreeFrameQty:GetText()) or 1
+	CraftTree_ShowReport(entry.id, qty)
+	return true
+end
+
+function CraftTree_TakeSuggestion()
+	if not CraftTree_SuggestionsVisible() then
+		return false
+	end
+	if suggestIndex < 1 or suggestIndex > table.getn(suggestList) then
+		if table.getn(suggestList) >= 1 then
+			return ApplySuggestion(suggestList[1])
+		end
+		return false
+	end
+	return ApplySuggestion(suggestList[suggestIndex])
+end
+
+function CraftTree_SuggestTab()
+	if not CraftTree_SuggestionsVisible() or table.getn(suggestList) == 0 then
+		return
+	end
+	local nextIndex = suggestIndex + 1
+	if nextIndex > table.getn(suggestList) then
+		nextIndex = 1
+	end
+	HighlightSuggest(nextIndex)
+	suggestIgnore = suggestList[nextIndex].name
+	if CraftTreeFrameInput then
+		CraftTreeFrameInput:SetText(suggestList[nextIndex].name)
+	end
+end
+
+function CraftTree_InitSuggestions()
+	if suggestFrame then
+		return
+	end
+	suggestFrame = CreateFrame("Frame", "CraftTreeSuggestFrame", CraftTreeFrame)
+	suggestFrame:SetFrameStrata("FULLSCREEN_DIALOG")
+	suggestFrame:SetWidth(380)
+	suggestFrame:SetHeight(MAX_SUGGEST * SUGGEST_ROW + 8)
+	suggestFrame:SetPoint("TOPLEFT", CraftTreeFrameInputBox, "BOTTOMLEFT", 0, -2)
+	suggestFrame:SetBackdrop({
+		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+		tile = true,
+		tileSize = 12,
+		edgeSize = 12,
+		insets = { left = 3, right = 3, top = 3, bottom = 3 },
+	})
+	suggestFrame:SetBackdropColor(0, 0, 0, 0.95)
+	suggestFrame:SetBackdropBorderColor(0.7, 0.7, 0.7, 1)
+	suggestFrame:EnableMouse(1)
+	suggestFrame:Hide()
+
+	local i
+	for i = 1, MAX_SUGGEST do
+		local btn = CreateFrame("Button", "CraftTreeSuggestBtn" .. i, suggestFrame)
+		btn:SetWidth(370)
+		btn:SetHeight(SUGGEST_ROW)
+		btn:SetPoint("TOPLEFT", suggestFrame, "TOPLEFT", 5, -4 - ((i - 1) * SUGGEST_ROW))
+		local label = btn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+		label:SetPoint("LEFT", btn, "LEFT", 4, 0)
+		label:SetJustifyH("LEFT")
+		label:SetWidth(360)
+		btn.label = label
+		local hl = btn:CreateTexture(nil, "BACKGROUND")
+		hl:SetAllPoints()
+		hl:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
+		hl:SetBlendMode("ADD")
+		hl:SetAlpha(0)
+		btn.hl = hl
+		btn:SetScript("OnClick", function()
+			ApplySuggestion(this.entry)
+		end)
+		btn:SetScript("OnEnter", function()
+			HighlightSuggest(this.index)
+		end)
+		btn:Hide()
+		suggestButtons[i] = btn
+	end
+end
+
+function CraftTree_UpdateSuggestions()
+	if not CraftTreeFrameInput then
+		return
+	end
+	CraftTree_InitSuggestions()
+	local text = CraftTreeFrameInput:GetText() or ""
+	if suggestIgnore and text == suggestIgnore then
+		return
+	end
+	suggestIgnore = nil
+
+	if not CraftTreeFrameInput:HasFocus() then
+		CraftTree_HideSuggestions()
+		return
+	end
+
+	local list = {}
+	if CraftTree_GetSuggestions then
+		list = CraftTree_GetSuggestions(text, MAX_SUGGEST) or {}
+	end
+	suggestList = list
+
+	if table.getn(list) == 0 then
+		CraftTree_HideSuggestions()
+		return
+	end
+
+	local i
+	for i = 1, MAX_SUGGEST do
+		local btn = suggestButtons[i]
+		local entry = list[i]
+		if entry then
+			btn.entry = entry
+			btn.index = i
+			btn.label:SetText(entry.name)
+			btn:Show()
+		else
+			btn.entry = nil
+			btn:Hide()
+		end
+	end
+
+	local shown = table.getn(list)
+	suggestFrame:SetHeight(shown * SUGGEST_ROW + 8)
+	suggestFrame:Show()
+	HighlightSuggest(1)
 end
 
 -- After tooltips load item data, refresh icons once.
