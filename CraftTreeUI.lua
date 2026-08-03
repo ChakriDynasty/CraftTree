@@ -134,6 +134,17 @@ local function ShowItemTooltip(owner, itemId)
 	GameTooltip:Show()
 end
 
+local function ShowEnchantTooltip(owner, spellId)
+	if not spellId then
+		return
+	end
+	GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
+	GameTooltip:SetHyperlink("enchant:" .. tostring(spellId))
+	GameTooltip:AddLine(" ")
+	GameTooltip:AddLine("Enchant (no item product)", 0.6, 0.9, 1)
+	GameTooltip:Show()
+end
+
 local function HideTooltip()
 	GameTooltip:Hide()
 end
@@ -249,7 +260,11 @@ local function MakeIconButton(parent, size, name)
 	btn.count = count
 	btn:SetScript("OnLeave", HideTooltip)
 	btn:SetScript("OnEnter", function()
-		ShowItemTooltip(this, this.itemId)
+		if this.enchantId then
+			ShowEnchantTooltip(this, this.enchantId)
+		else
+			ShowItemTooltip(this, this.itemId)
+		end
 	end)
 	return btn
 end
@@ -517,38 +532,59 @@ RenderTree = function(node)
 	end
 end
 
-local function SetGoal(itemId, qty, node)
+local function SetGoal(id, qty, node, kind)
 	if not CraftTreeGoal or not CraftTreeGoal.icon then
 		CraftTree_InitGoal(CraftTreeGoal)
 	end
-	local name, texture, quality = ItemInfo(itemId)
-	CraftTreeGoal.icon.itemId = itemId
+	kind = kind or (node and node.enchant and "enchant") or "item"
+	local name, texture, quality
+	if kind == "enchant" then
+		local recipes = CraftTreeEnchantDB and CraftTreeEnchantDB[id]
+		name = (node and node.name) or (recipes and recipes[1] and recipes[1].name) or ("Enchant #" .. tostring(id))
+		texture = (node and node.icon) or (recipes and recipes[1] and recipes[1].icon) or "Interface\\Icons\\Spell_Holy_GreaterHeal"
+		texture = NormalizeTexture(texture) or QUESTION
+		quality = 2
+		CraftTreeGoal.icon.itemId = nil
+		CraftTreeGoal.icon.enchantId = id
+	else
+		name, texture, quality = ItemInfo(id)
+		CraftTreeGoal.icon.itemId = id
+		CraftTreeGoal.icon.enchantId = nil
+	end
 	CraftTreeGoal.icon.icon:SetTexture(texture)
 	local r, g, b = QualityColor(quality)
 	CraftTreeGoal.name:SetText(string.format("%dx %s", qty, name))
 	CraftTreeGoal.name:SetTextColor(r, g, b)
 	local extra = ""
 	if node and not node.leaf and node.crafts then
-		extra = string.format("Crafts needed: %d", node.crafts)
+		if kind == "enchant" then
+			extra = string.format("Enchants needed: %d", node.crafts)
+		else
+			extra = string.format("Crafts needed: %d", node.crafts)
+		end
 	end
-	local _, _, _, src = CraftTree_GetOwned(itemId)
-	local srcLabel = src or "?"
-	if src == "bagshui" then
-		srcLabel = "Bagshui (all chars)"
-	elseif src == "bagshui-data" then
-		srcLabel = "Bagshui data"
-	elseif src == "local" then
-		srcLabel = "local bags"
-	end
-	local skill = SkillLabel(itemId)
 	local bits = {}
-	if skill then
-		table.insert(bits, skill)
+	if kind == "enchant" then
+		table.insert(bits, "Enchanting")
+	else
+		local skill = SkillLabel(id)
+		if skill then
+			table.insert(bits, skill)
+		end
+		local _, _, _, src = CraftTree_GetOwned(id)
+		local srcLabel = src or "?"
+		if src == "bagshui" then
+			srcLabel = "Bagshui (all chars)"
+		elseif src == "bagshui-data" then
+			srcLabel = "Bagshui data"
+		elseif src == "local" then
+			srcLabel = "local bags"
+		end
+		table.insert(bits, "Ownership: " .. srcLabel)
 	end
 	if extra ~= "" then
 		table.insert(bits, extra)
 	end
-	table.insert(bits, "Ownership: " .. srcLabel)
 	table.insert(bits, "Click + to unfold mats of mats")
 	CraftTreeGoal.sub:SetText(table.concat(bits, "  ·  "))
 end
@@ -738,6 +774,7 @@ local function ClearVisual()
 		CraftTreeGoal.sub:SetText("Expand a craft to see its material tree")
 		if CraftTreeGoal.icon then
 			CraftTreeGoal.icon.itemId = nil
+			CraftTreeGoal.icon.enchantId = nil
 			CraftTreeGoal.icon.icon:SetTexture(QUESTION)
 			CraftTreeGoal.icon.count:SetText("")
 		end
@@ -763,18 +800,19 @@ function CraftTree_ShowMessage(text)
 	end
 end
 
-function CraftTree_RenderResult(itemId, qty, node, shopping)
+function CraftTree_RenderResult(id, qty, node, shopping, kind)
+	kind = kind or (node and node.enchant and "enchant") or "item"
 	CraftTree_InitUI()
 	CraftTree_HideSuggestions()
-	if not lastRender or lastRender.itemId ~= itemId then
+	if not lastRender or lastRender.itemId ~= id or lastRender.kind ~= kind then
 		expandState = {}
 		refreshPasses = 0
 		refreshElapsed = 0
 	end
 	ApplyExpandState(node, "0")
 	treeRoot = node
-	lastRender = { itemId = itemId, qty = qty, node = node, shopping = shopping }
-	SetGoal(itemId, qty, node)
+	lastRender = { itemId = id, id = id, qty = qty, node = node, shopping = shopping, kind = kind }
+	SetGoal(id, qty, node, kind)
 	RenderTree(node)
 	RenderShop(shopping or {})
 end
@@ -851,7 +889,7 @@ local function ApplySuggestion(entry)
 		CraftTreeFrameInput:ClearFocus()
 	end
 	local qty = tonumber(CraftTreeFrameQty and CraftTreeFrameQty:GetText()) or 1
-	CraftTree_ShowReport(entry.id, qty)
+	CraftTree_ShowReport(entry.id, qty, entry.kind or "item")
 	return true
 end
 
@@ -997,7 +1035,7 @@ refreshFrame:SetScript("OnUpdate", function()
 	refreshElapsed = 0
 	refreshPasses = refreshPasses + 1
 	-- Re-draw same tree (keeps expand state) so newly cached icons appear
-	SetGoal(lastRender.itemId, lastRender.qty, treeRoot)
+	SetGoal(lastRender.itemId, lastRender.qty, treeRoot, lastRender.kind)
 	RenderTree(treeRoot)
 	RenderShop(lastRender.shopping or {})
 end)

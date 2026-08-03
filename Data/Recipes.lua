@@ -4896,6 +4896,72 @@ CraftTreeDB = {
   [93223] = {
     {spell=65210, yield=1, name="Simple Bronze Katana", reagents={{2841,11}, {3466,2}, {3478,2}, {2319,1}}},
   },
+  [6218] = {
+    {spell=7421, yield=1, name="Runed Copper Rod", reagents={{6217,1}, {10938,1}, {10940,1}}},
+  },
+  [6339] = {
+    {spell=7795, yield=1, name="Runed Silver Rod", reagents={{1210,1}, {6338,1}, {10939,3}, {10940,6}}},
+  },
+  [11130] = {
+    {spell=13628, yield=1, name="Runed Golden Rod", reagents={{5500,1}, {11082,2}, {11083,2}, {11128,1}}},
+  },
+  [11145] = {
+    {spell=13702, yield=1, name="Runed Truesilver Rod", reagents={{7971,1}, {11135,2}, {11137,2}, {11144,1}}},
+  },
+  [11287] = {
+    {spell=14293, yield=1, name="Lesser Magic Wand", reagents={{4470,1}, {10938,1}}},
+  },
+  [11288] = {
+    {spell=14807, yield=1, name="Greater Magic Wand", reagents={{4470,1}, {10939,1}}},
+  },
+  [11289] = {
+    {spell=14809, yield=1, name="Lesser Mystic Wand", reagents={{11083,1}, {11134,1}, {11291,1}}},
+  },
+  [11290] = {
+    {spell=14810, yield=1, name="Greater Mystic Wand", reagents={{11135,1}, {11137,1}, {11291,1}}},
+  },
+  [11811] = {
+    {spell=15596, yield=1, name="Smoking Heart of the Mountain", reagents={{7078,1}, {11382,1}, {14343,3}}},
+  },
+  [12655] = {
+    {spell=17180, yield=1, name="Enchanted Thorium", reagents={{11176,3}, {12359,1}}},
+  },
+  [12810] = {
+    {spell=17181, yield=1, name="Enchanted Leather", reagents={{8170,1}, {16202,1}}},
+  },
+  [16207] = {
+    {spell=20051, yield=1, name="Runed Arcanite Rod", reagents={{13926,1}, {14343,4}, {14344,2}, {16203,4}, {16204,10}, {16206,1}}},
+  },
+  [17968] = {
+    {spell=22434, yield=1, name="Charged Scale of Onyxia", reagents={{16203,2}, {16204,2}, {17967,1}}},
+  },
+  [20744] = {
+    {spell=25124, yield=1, name="Minor Wizard Oil", reagents={{3371,1}, {10940,2}, {17034,1}}},
+  },
+  [20745] = {
+    {spell=25125, yield=1, name="Minor Mana Oil", reagents={{3372,1}, {11083,3}, {17034,2}}},
+  },
+  [20746] = {
+    {spell=25126, yield=1, name="Lesser Wizard Oil", reagents={{3372,1}, {11137,3}, {17035,2}}},
+  },
+  [20747] = {
+    {spell=25127, yield=1, name="Lesser Mana Oil", reagents={{8831,2}, {8925,1}, {11176,3}}},
+  },
+  [20748] = {
+    {spell=25130, yield=1, name="Brilliant Mana Oil", reagents={{8831,3}, {14344,2}, {18256,1}}},
+  },
+  [20749] = {
+    {spell=25129, yield=1, name="Brilliant Wizard Oil", reagents={{4625,3}, {14344,2}, {18256,1}}},
+  },
+  [20750] = {
+    {spell=25128, yield=1, name="Wizard Oil", reagents={{4625,2}, {8925,1}, {16204,3}}},
+  },
+  [55248] = {
+    {spell=41758, yield=1, name="Enchanted Gemstone Oil", reagents={{11175,1}, {16203,1}, {55247,1}}},
+  },
+  [61732] = {
+    {spell=57518, yield=1, name="Eternal Dreamstone Shard", reagents={{12803,80}, {13468,5}, {20725,10}, {61197,5}, {61199,25}, {61673,25}}},
+  },
 }
 
 -- crafts: 1637, unique items: 1629

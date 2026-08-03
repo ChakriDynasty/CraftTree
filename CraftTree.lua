@@ -19,6 +19,14 @@ local function ItemName(itemId)
 	return "Unknown Item"
 end
 
+local function EnchantName(spellId)
+	local recipes = CraftTreeEnchantDB and CraftTreeEnchantDB[spellId]
+	if recipes and recipes[1] and recipes[1].name and recipes[1].name ~= "" then
+		return recipes[1].name
+	end
+	return "Unknown Enchant"
+end
+
 local function StripColors(text)
 	if not text then
 		return ""
@@ -69,10 +77,34 @@ local function FindCraftByName(query)
 	return exactId or startsId or containsId
 end
 
+local function FindEnchantByName(query)
+	if not CraftTreeEnchantDB or not query or query == "" then
+		return nil
+	end
+	local lower = string.lower(query)
+	local exactId, startsId, containsId
+	local spellId, recipes
+	for spellId, recipes in pairs(CraftTreeEnchantDB) do
+		local n = recipes[1] and recipes[1].name
+		if n and n ~= "" then
+			local nl = string.lower(string.gsub(n, "’", "'"))
+			if nl == lower then
+				exactId = spellId
+				break
+			elseif not startsId and string.sub(nl, 1, string.len(lower)) == lower then
+				startsId = spellId
+			elseif not containsId and string.find(nl, lower, 1, true) then
+				containsId = spellId
+			end
+		end
+	end
+	return exactId or startsId or containsId
+end
+
 local function SuggestCraftNames(query, limit)
 	limit = limit or 10
 	local out = {}
-	if not CraftTreeDB or not query then
+	if not query then
 		return out
 	end
 	query = string.gsub(query, "^%s+", "")
@@ -80,24 +112,42 @@ local function SuggestCraftNames(query, limit)
 	if query == "" or string.len(query) < 1 then
 		return out
 	end
-	-- Skip raw item links / pure IDs for suggest UI
-	if string.find(query, "item:") or string.find(query, "^%d+$") then
+	-- Skip raw item/enchant links / pure IDs for suggest UI
+	if string.find(query, "item:") or string.find(query, "enchant:") or string.find(query, "^%d+$") then
 		return out
 	end
 	local lower = string.lower(string.gsub(query, "’", "'"))
 	local starts, contains = {}, {}
-	local itemId, recipes
-	for itemId, recipes in pairs(CraftTreeDB) do
-		local n = recipes[1] and recipes[1].name
-		if n and n ~= "" then
-			local nl = string.lower(string.gsub(n, "’", "'"))
-			if string.sub(nl, 1, string.len(lower)) == lower then
-				table.insert(starts, { id = itemId, name = n })
-			elseif string.find(nl, lower, 1, true) then
-				table.insert(contains, { id = itemId, name = n })
+
+	local function consider(id, name, kind)
+		local nl = string.lower(string.gsub(name, "’", "'"))
+		local entry = { id = id, name = name, kind = kind }
+		if string.sub(nl, 1, string.len(lower)) == lower then
+			table.insert(starts, entry)
+		elseif string.find(nl, lower, 1, true) then
+			table.insert(contains, entry)
+		end
+	end
+
+	if CraftTreeDB then
+		local itemId, recipes
+		for itemId, recipes in pairs(CraftTreeDB) do
+			local n = recipes[1] and recipes[1].name
+			if n and n ~= "" then
+				consider(itemId, n, "item")
 			end
 		end
 	end
+	if CraftTreeEnchantDB then
+		local spellId, recipes
+		for spellId, recipes in pairs(CraftTreeEnchantDB) do
+			local n = recipes[1] and recipes[1].name
+			if n and n ~= "" then
+				consider(spellId, n, "enchant")
+			end
+		end
+	end
+
 	local function byName(a, b)
 		return a.name < b.name
 	end
@@ -123,42 +173,111 @@ function CraftTree_GetSuggestions(query, limit)
 	return SuggestCraftNames(query, limit)
 end
 
-function CraftTree_ParseItemId(text)
+-- Returns kind ("item"|"enchant"), id
+function CraftTree_ParseTarget(text)
 	if not text then
-		return nil
+		return nil, nil
 	end
 	text = string.gsub(text, "^%s+", "")
 	text = string.gsub(text, "%s+$", "")
 	if text == "" then
-		return nil
+		return nil, nil
 	end
 
-	-- Full item link / any "item:12345" fragment (links can be long)
+	local _, _, enchId = string.find(text, "enchant:(%d+)")
+	if enchId then
+		return "enchant", tonumber(enchId)
+	end
+
 	local _, _, linkId = string.find(text, "item:(%d+)")
 	if linkId then
-		return tonumber(linkId)
+		local itemId = tonumber(linkId)
+		if CraftTreeEnchantFormulas and CraftTreeEnchantFormulas[itemId] then
+			return "enchant", CraftTreeEnchantFormulas[itemId]
+		end
+		return "item", itemId
 	end
 
-	-- Bare number
 	local _, _, bare = string.find(text, "^(%d+)$")
 	if bare then
-		return tonumber(bare)
+		local id = tonumber(bare)
+		if CraftTreeEnchantFormulas and CraftTreeEnchantFormulas[id] then
+			return "enchant", CraftTreeEnchantFormulas[id]
+		end
+		if CraftTreeDB and CraftTreeDB[id] then
+			return "item", id
+		end
+		if CraftTreeEnchantDB and CraftTreeEnchantDB[id] then
+			return "enchant", id
+		end
+		return "item", id
 	end
 
-	-- Display name from link leftovers or typed craft name
 	local name = NormalizeName(text)
-	if name ~= "" and name ~= text then
-		local _, _, again = string.find(name, "item:(%d+)")
-		if again then
-			return tonumber(again)
+	if name ~= "" then
+		local _, _, againEnchant = string.find(name, "enchant:(%d+)")
+		if againEnchant then
+			return "enchant", tonumber(againEnchant)
+		end
+		local _, _, againItem = string.find(name, "item:(%d+)")
+		if againItem then
+			local itemId = tonumber(againItem)
+			if CraftTreeEnchantFormulas and CraftTreeEnchantFormulas[itemId] then
+				return "enchant", CraftTreeEnchantFormulas[itemId]
+			end
+			return "item", itemId
 		end
 	end
-	return FindCraftByName(name)
+
+	-- Prefer exact item craft name, then exact enchant, then fuzzy item, then fuzzy enchant
+	local lower = string.lower(name)
+	local itemExact, enchExact
+	if CraftTreeDB then
+		local itemId, recipes
+		for itemId, recipes in pairs(CraftTreeDB) do
+			local n = recipes[1] and recipes[1].name
+			if n and string.lower(string.gsub(n, "’", "'")) == lower then
+				itemExact = itemId
+				break
+			end
+		end
+	end
+	if itemExact then
+		return "item", itemExact
+	end
+	enchExact = FindEnchantByName(name)
+	if enchExact and CraftTreeEnchantDB and CraftTreeEnchantDB[enchExact]
+		and CraftTreeEnchantDB[enchExact][1]
+		and string.lower(string.gsub(CraftTreeEnchantDB[enchExact][1].name, "’", "'")) == lower
+	then
+		return "enchant", enchExact
+	end
+	local itemFuzzy = FindCraftByName(name)
+	if itemFuzzy then
+		return "item", itemFuzzy
+	end
+	if enchExact then
+		return "enchant", enchExact
+	end
+	return nil, nil
+end
+
+function CraftTree_ParseItemId(text)
+	local kind, id = CraftTree_ParseTarget(text)
+	if kind == "item" then
+		return id
+	end
+	-- Formulas resolve to enchant; bare enchant names are not item ids
+	return nil
 end
 
 -- Back-compat alias
 local function ParseItemId(text)
 	return CraftTree_ParseItemId(text)
+end
+
+local function ParseTarget(text)
+	return CraftTree_ParseTarget(text)
 end
 
 ------------------------------------------------------------------------
@@ -566,6 +685,49 @@ function CraftTree_BuildReport(itemId, qty)
 	return node, shopping
 end
 
+function CraftTree_BuildEnchantReport(spellId, qty)
+	qty = qty or 1
+	if qty < 1 then
+		qty = 1
+	end
+	local recipes = CraftTreeEnchantDB and CraftTreeEnchantDB[spellId]
+	local recipe = recipes and recipes[1]
+	local shopping = {}
+	local node = {
+		id = spellId,
+		need = qty,
+		name = (recipe and recipe.name) or EnchantName(spellId),
+		children = {},
+		leaf = false,
+		crafts = qty,
+		yield = 1,
+		blocked = false,
+		owned = 0,
+		short = qty,
+		enchant = true,
+		spell = spellId,
+		icon = recipe and recipe.icon,
+	}
+	if not recipe then
+		node.leaf = true
+		node.blocked = true
+		return node, shopping
+	end
+	if not recipe.reagents or table.getn(recipe.reagents) == 0 then
+		node.leaf = true
+		return node, shopping
+	end
+	local i
+	for i = 1, table.getn(recipe.reagents) do
+		local reag = recipe.reagents[i]
+		local rid = reag[1]
+		local rcnt = reag[2] or 1
+		local child = CraftTree_Resolve(rid, rcnt * qty, shopping, 1, {})
+		table.insert(node.children, child)
+	end
+	return node, shopping
+end
+
 function CraftTree_OnShow()
 	if CraftTreeFrameQty and (not CraftTreeFrameQty:GetText() or CraftTreeFrameQty:GetText() == "") then
 		CraftTreeFrameQty:SetText("1")
@@ -575,11 +737,17 @@ function CraftTree_OnShow()
 	end
 end
 
-function CraftTree_ShowReport(itemId, qty)
-	local node, shopping = CraftTree_BuildReport(itemId, qty)
+function CraftTree_ShowReport(id, qty, kind)
+	kind = kind or "item"
+	local node, shopping
+	if kind == "enchant" then
+		node, shopping = CraftTree_BuildEnchantReport(id, qty)
+	else
+		node, shopping = CraftTree_BuildReport(id, qty)
+	end
 	CraftTreeFrame:Show()
 	if CraftTree_RenderResult then
-		CraftTree_RenderResult(itemId, qty, node, shopping)
+		CraftTree_RenderResult(id, qty, node, shopping, kind)
 	end
 end
 
@@ -596,9 +764,9 @@ function CraftTree_OnInputEnter()
 	end
 	local text = CraftTreeFrameInput and CraftTreeFrameInput:GetText() or ""
 	local qty = tonumber(CraftTreeFrameQty and CraftTreeFrameQty:GetText()) or 1
-	local itemId = ParseItemId(text)
-	if not itemId then
-		local msg = "Could not parse that input. Shift-click a link, type a craft name, or an item ID."
+	local kind, id = ParseTarget(text)
+	if not kind or not id then
+		local msg = "Could not parse that input. Shift-click a link, type a craft/enchant name, or an item ID."
 		local name = NormalizeName(text)
 		local suggestions = SuggestCraftNames(name, 5)
 		if table.getn(suggestions) > 0 then
@@ -616,13 +784,18 @@ function CraftTree_OnInputEnter()
 		return
 	end
 	if CraftTreeFrameInput then
-		local shown = GetItemInfo(itemId)
-		if not shown then
-			shown = ItemName(itemId)
+		local shown
+		if kind == "enchant" then
+			shown = EnchantName(id)
+		else
+			shown = GetItemInfo(id)
+			if not shown then
+				shown = ItemName(id)
+			end
 		end
 		CraftTreeFrameInput:SetText(shown)
 	end
-	CraftTree_ShowReport(itemId, qty)
+	CraftTree_ShowReport(id, qty, kind)
 end
 
 function CraftTree_Toggle()
@@ -636,7 +809,7 @@ function CraftTree_Toggle()
 	end
 end
 
--- Insert an item link/id into CraftTree and expand it.
+-- Insert an item/enchant link into CraftTree and expand it.
 function CraftTree_ReceiveLink(link)
 	if not link or link == "" then
 		return false
@@ -657,47 +830,69 @@ local function CraftTreeWantsLinks()
 	return CraftTreeFrame and CraftTreeFrame:IsShown() and not IsAltKeyDown()
 end
 
--- Resolve AtlasLoot click ids ("s123", numeric item, etc.) to an item id/link.
+-- Resolve AtlasLoot click ids ("s123", "e20034", numeric item) to kind+id.
+-- Returns kind, id (id may be item or enchant spell).
 local function ResolveAtlasLootId(id)
 	if not id or id == 0 or id == "0" then
-		return nil
+		return nil, nil
 	end
 	if type(id) == "number" then
-		return id
+		if CraftTreeEnchantFormulas and CraftTreeEnchantFormulas[id] then
+			return "enchant", CraftTreeEnchantFormulas[id]
+		end
+		return "item", id
 	end
 	if type(id) ~= "string" then
-		return tonumber(id)
+		local n = tonumber(id)
+		if n then
+			return "item", n
+		end
+		return nil, nil
 	end
 	local prefix = string.sub(id, 1, 1)
 	local num = tonumber(string.sub(id, 2))
 	if prefix == "s" and num and GetSpellInfoAtlasLootDB and GetSpellInfoAtlasLootDB["craftspells"] then
 		local spell = GetSpellInfoAtlasLootDB["craftspells"][num]
 		if spell and spell["craftItem"] and spell["craftItem"] ~= 0 then
-			return spell["craftItem"]
+			return "item", spell["craftItem"]
 		end
-		return nil
+		return nil, nil
 	end
-	if prefix == "e" and num and GetSpellInfoAtlasLootDB and GetSpellInfoAtlasLootDB["enchants"] then
-		local ench = GetSpellInfoAtlasLootDB["enchants"][num]
-		if ench and ench["item"] and ench["item"] ~= 0 then
-			return ench["item"]
+	if prefix == "e" and num then
+		if GetSpellInfoAtlasLootDB and GetSpellInfoAtlasLootDB["enchants"] then
+			local ench = GetSpellInfoAtlasLootDB["enchants"][num]
+			if ench and ench["item"] and ench["item"] ~= 0 then
+				return "item", ench["item"]
+			end
 		end
-		return nil
+		-- Pure enchant (no crafted item) — open by spell id
+		return "enchant", num
 	end
-	return tonumber(id)
+	local asNum = tonumber(id)
+	if asNum then
+		return "item", asNum
+	end
+	return nil, nil
 end
 
-local function ReceiveItemId(itemId, name)
-	if not itemId then
+local function ReceiveTarget(kind, id, name)
+	if not kind or not id then
 		return false
 	end
 	local link
-	if name then
-		link = "|Hitem:" .. tostring(itemId) .. ":0:0:0|h[" .. tostring(name) .. "]|h"
+	if kind == "enchant" then
+		local label = name or EnchantName(id)
+		link = "|Henchant:" .. tostring(id) .. "|h[" .. tostring(label) .. "]|h"
+	elseif name then
+		link = "|Hitem:" .. tostring(id) .. ":0:0:0|h[" .. tostring(name) .. "]|h"
 	else
-		link = "item:" .. tostring(itemId) .. ":0:0:0"
+		link = "item:" .. tostring(id) .. ":0:0:0"
 	end
 	return CraftTree_ReceiveLink(link)
+end
+
+local function ReceiveItemId(itemId, name)
+	return ReceiveTarget("item", itemId, name)
 end
 
 local hookedClicks = {}
@@ -745,7 +940,7 @@ local function HookChatEditBoxInsert()
 		if type(original) == "function" then
 			chatInsertHooked = 1
 			ChatFrameEditBox.Insert = function(self, text)
-				if CraftTreeWantsLinks() and text and string.find(text, "item:") then
+				if CraftTreeWantsLinks() and text and (string.find(text, "item:") or string.find(text, "enchant:")) then
 					CraftTree_ReceiveLink(text)
 					return
 				end
@@ -780,8 +975,8 @@ local function HookAtlasLoot()
 		local original = AtlasLoot_SayItemReagents
 		AtlasLoot_SayItemReagents = function(id, color, name, safe)
 			if CraftTreeWantsLinks() then
-				local itemId = ResolveAtlasLootId(id)
-				if itemId and ReceiveItemId(itemId, name) then
+				local kind, tid = ResolveAtlasLootId(id)
+				if kind and tid and ReceiveTarget(kind, tid, name) then
 					return
 				end
 			end
@@ -793,7 +988,7 @@ local function HookAtlasLoot()
 		local original = AtlasLootItem_OnClick
 		AtlasLootItem_OnClick = function()
 			if CraftTreeWantsLinks() and IsShiftKeyDown() and this and this.itemID and this.itemID ~= 0 then
-				local itemId = ResolveAtlasLootId(this.itemID)
+				local kind, tid = ResolveAtlasLootId(this.itemID)
 				local name
 				if this.GetID then
 					local fs = getglobal("AtlasLootItem_" .. this:GetID() .. "_Name")
@@ -803,7 +998,7 @@ local function HookAtlasLoot()
 						name = string.gsub(name, "|r", "")
 					end
 				end
-				if itemId and ReceiveItemId(itemId, name) then
+				if kind and tid and ReceiveTarget(kind, tid, name) then
 					return
 				end
 			end
@@ -815,7 +1010,7 @@ end
 -- ChatEdit_InsertLink: used by default bags when chat is open
 local Original_ChatEdit_InsertLink = ChatEdit_InsertLink
 function ChatEdit_InsertLink(link)
-	if CraftTreeWantsLinks() and link and string.find(link, "item:") then
+	if CraftTreeWantsLinks() and link and (string.find(link, "item:") or string.find(link, "enchant:")) then
 		CraftTree_ReceiveLink(link)
 		return true
 	end
@@ -824,11 +1019,11 @@ function ChatEdit_InsertLink(link)
 	end
 end
 
--- SetItemRef: shift-clicking an item link in chat
+-- SetItemRef: shift-clicking an item/enchant link in chat
 local Original_SetItemRef = SetItemRef
 function SetItemRef(link, text, button)
-	if CraftTreeWantsLinks() and IsShiftKeyDown() and link and string.find(link, "^item:") then
-		if text and string.find(text, "item:") then
+	if CraftTreeWantsLinks() and IsShiftKeyDown() and link and (string.find(link, "^item:") or string.find(link, "^enchant:")) then
+		if text and (string.find(text, "item:") or string.find(text, "enchant:")) then
 			CraftTree_ReceiveLink(text)
 		else
 			CraftTree_ReceiveLink(link)
@@ -865,8 +1060,8 @@ SlashCmdList["CRAFTTREE"] = function(msg)
 		qty = tonumber(q) or 1
 		rest = r
 	end
-	local itemId = ParseItemId(rest)
-	if not itemId then
+	local kind, id = ParseTarget(rest)
+	if not kind or not id then
 		CraftTreeFrame:Show()
 		if CraftTreeFrameInput then
 			CraftTreeFrameInput:SetText(rest)
@@ -878,17 +1073,17 @@ SlashCmdList["CRAFTTREE"] = function(msg)
 		CraftTreeFrameInput:SetText(rest)
 		CraftTreeFrameQty:SetText(tostring(qty))
 	end
-	CraftTree_ShowReport(itemId, qty)
+	CraftTree_ShowReport(id, qty, kind)
 end
 
 local function RefreshOpenReport()
 	if not (CraftTreeFrame and CraftTreeFrame:IsShown() and CraftTreeFrameInput) then
 		return
 	end
-	local itemId = ParseItemId(CraftTreeFrameInput:GetText())
-	if itemId then
+	local kind, id = ParseTarget(CraftTreeFrameInput:GetText())
+	if kind and id then
 		local qty = tonumber(CraftTreeFrameQty:GetText()) or 1
-		CraftTree_ShowReport(itemId, qty)
+		CraftTree_ShowReport(id, qty, kind)
 	end
 end
 
@@ -906,9 +1101,15 @@ f:SetScript("OnEvent", function()
 					n = n + 1
 				end
 			end
+			local e = 0
+			if CraftTreeEnchantDB then
+				for _ in pairs(CraftTreeEnchantDB) do
+					e = e + 1
+				end
+			end
 			local bagshui = (Bagshui and "yes") or (BagshuiData and "data-only") or "no"
-			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96CraftTree|r loaded (" .. n .. " crafts, Bagshui: " .. bagshui .. "). /crafttree or /ct")
-			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96CraftTree:|r with window open, shift-click items from bags/chat (Alt+Shift = normal game behavior)")
+			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96CraftTree|r loaded (" .. n .. " crafts, " .. e .. " enchants, Bagshui: " .. bagshui .. "). /crafttree or /ct")
+			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96CraftTree:|r with window open, shift-click items/enchants from bags/chat/AtlasLoot (Alt+Shift = normal)")
 			InstallClickHooks()
 		elseif arg1 == "Bagshui" or arg1 == "AtlasLoot" then
 			-- Re-hook after inventory/loot addons load
