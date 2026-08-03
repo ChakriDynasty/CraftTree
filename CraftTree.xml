@@ -42,7 +42,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentHint" inherits="GameFontDisableSmall" text="Shift-click an item, or type a craft name / item ID">
+				<FontString name="$parentHint" inherits="GameFontDisableSmall" text="Window open: Shift-click bag/chat items  ·  Alt+Shift = normal link/split">
 					<Anchors>
 						<Anchor point="TOP">
 							<Offset>
@@ -258,7 +258,7 @@
 			<!-- Material tree -->
 			<ScrollFrame name="CraftTreeTreeScroll" inherits="UIPanelScrollFrameTemplate">
 				<Size>
-					<AbsDimension x="540" y="230"/>
+					<AbsDimension x="540" y="250"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="CraftTreeGoal" relativePoint="BOTTOMLEFT">
@@ -270,7 +270,7 @@
 				<ScrollChild>
 					<Frame name="CraftTreeTreeChild">
 						<Size>
-							<AbsDimension x="510" y="230"/>
+							<AbsDimension x="510" y="250"/>
 						</Size>
 					</Frame>
 				</ScrollChild>

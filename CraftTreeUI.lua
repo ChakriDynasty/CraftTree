@@ -4,13 +4,49 @@ local ROW_HEIGHT = 28
 local ICON_SIZE = 24
 local GOAL_ICON = 40
 local SHOP_ICON = 36
-local MAX_TREE_ROWS = 80
-local MAX_SHOP_SLOTS = 48
+local MAX_TREE_ROWS = 120
+local MAX_SHOP_SLOTS = 64
 local QUESTION = "Interface\\Icons\\INV_Misc_QuestionMark"
+
+-- Used when client item cache has no texture yet (common for some bars/ores).
+local ICON_FALLBACK = {
+	[12359] = "Interface\\Icons\\INV_Ingot_07",        -- Thorium Bar
+	[10620] = "Interface\\Icons\\INV_Ore_Thorium_02",  -- Thorium Ore
+	[12360] = "Interface\\Icons\\INV_Ingot_Thorium",   -- Arcanite Bar
+	[12655] = "Interface\\Icons\\INV_Ingot_Thorium",   -- Enchanted Thorium Bar
+	[11371] = "Interface\\Icons\\INV_Ingot_Mithril01", -- Dark Iron Bar
+	[3577] = "Interface\\Icons\\INV_Ingot_03",         -- Gold Bar
+	[3575] = "Interface\\Icons\\INV_Ingot_Iron",       -- Iron Bar
+	[2842] = "Interface\\Icons\\INV_Ingot_01",         -- Silver Bar
+	[2841] = "Interface\\Icons\\INV_Ingot_Bronze",     -- Bronze Bar
+	[2840] = "Interface\\Icons\\INV_Ingot_02",         -- Copper Bar
+	[3576] = "Interface\\Icons\\INV_Ingot_Tin",        -- Tin Bar
+	[3859] = "Interface\\Icons\\INV_Ingot_Steel",      -- Steel Bar
+	[3860] = "Interface\\Icons\\INV_Ingot_06",         -- Mithril Bar
+	[6037] = "Interface\\Icons\\INV_Ingot_08",         -- Truesilver Bar
+	[2770] = "Interface\\Icons\\INV_Ore_Copper_01",
+	[2771] = "Interface\\Icons\\INV_Ore_Tin_01",
+	[2772] = "Interface\\Icons\\INV_Ore_Iron_01",
+	[2775] = "Interface\\Icons\\INV_Ore_Silver_01",
+	[2776] = "Interface\\Icons\\INV_Ore_Gold_01",
+	[3858] = "Interface\\Icons\\INV_Ore_Mithril_02",
+	[7911] = "Interface\\Icons\\INV_Ore_Truesilver",
+}
 
 local treeRows = {}
 local shopSlots = {}
 local uiReady = false
+local lastRender = nil
+
+local function NormalizeTexture(tex)
+	if type(tex) ~= "string" or tex == "" then
+		return nil
+	end
+	if not string.find(tex, "\\") and not string.find(tex, "/") then
+		tex = "Interface\\Icons\\" .. tex
+	end
+	return tex
+end
 
 local function QualityColor(quality)
 	if quality and GetItemQualityColor then
@@ -20,16 +56,45 @@ local function QualityColor(quality)
 	return 1, 0.82, 0
 end
 
+-- Vanilla 1.12: name, link, quality, minLevel, type, subtype, stack, equipLoc, texture (9 values)
 local function ItemInfo(itemId)
-	local name, link, quality, _, _, _, _, _, _, texture = GetItemInfo(itemId)
+	local name, link, quality, _, _, _, _, _, texture = GetItemInfo(itemId)
+
 	if not name then
 		if GameTooltip and GameTooltip.SetHyperlink then
 			GameTooltip:SetOwner(UIParent, "ANCHOR_NONE")
 			GameTooltip:SetHyperlink("item:" .. tostring(itemId) .. ":0:0:0")
 			GameTooltip:Hide()
 		end
-		name, link, quality, _, _, _, _, _, _, texture = GetItemInfo(itemId)
+		name, link, quality, _, _, _, _, _, texture = GetItemInfo(itemId)
 	end
+
+	texture = NormalizeTexture(texture)
+
+	if not texture then
+		local info = { GetItemInfo(itemId) }
+		local i
+		for i = 1, table.getn(info) do
+			local v = NormalizeTexture(info[i])
+			if v and (
+				string.find(v, "Icons")
+				or string.find(v, "INV_")
+				or string.find(v, "Spell_")
+				or string.find(v, "Trade_")
+			) then
+				texture = v
+				break
+			end
+		end
+	end
+
+	if not texture and ICON_FALLBACK[itemId] then
+		texture = ICON_FALLBACK[itemId]
+	end
+	if not texture then
+		texture = QUESTION
+	end
+
 	if not name then
 		local recipes = CraftTreeDB and CraftTreeDB[itemId]
 		if recipes and recipes[1] and recipes[1].name ~= "" then
@@ -38,20 +103,7 @@ local function ItemInfo(itemId)
 			name = "item:" .. tostring(itemId)
 		end
 	end
-	if type(texture) ~= "string" or texture == "" then
-		-- Fallback if client return order differs
-		local n2, l2, q2, a, b, c, d, e, f = GetItemInfo(itemId)
-		if type(f) == "string" and string.find(f, "Interface\\Icons") then
-			texture = f
-		elseif type(e) == "string" and string.find(e, "Interface\\Icons") then
-			texture = e
-		else
-			texture = QUESTION
-		end
-		if not quality and q2 then
-			quality = q2
-		end
-	end
+
 	return name, texture, quality or 1, link
 end
 
@@ -61,13 +113,18 @@ local function ShowItemTooltip(owner, itemId)
 	end
 	GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
 	GameTooltip:SetHyperlink("item:" .. tostring(itemId) .. ":0:0:0")
-	local owned, cur, oth, src = CraftTree_GetOwned(itemId)
+	local src = CraftTreeSources and CraftTreeSources[itemId]
+	if src and src.text then
+		GameTooltip:AddLine(" ")
+		GameTooltip:AddLine(src.text, 1.0, 0.82, 0.3)
+	end
+	local owned, cur, oth, ownSrc = CraftTree_GetOwned(itemId)
 	if owned then
 		GameTooltip:AddLine(" ")
-		if src == "bagshui" or src == "bagshui-data" then
+		if ownSrc == "bagshui" or ownSrc == "bagshui-data" then
 			GameTooltip:AddLine(string.format("Owned: %d  (here %d / alts %d)", owned, cur or 0, oth or 0), 0.6, 0.9, 1)
 		else
-			GameTooltip:AddLine(string.format("Owned: %d (%s)", owned, src or "?"), 0.6, 0.9, 1)
+			GameTooltip:AddLine(string.format("Owned: %d (%s)", owned, ownSrc or "?"), 0.6, 0.9, 1)
 		end
 	end
 	GameTooltip:Show()
@@ -75,6 +132,96 @@ end
 
 local function HideTooltip()
 	GameTooltip:Hide()
+end
+
+local function SetupMouseWheel(scrollFrame)
+	if not scrollFrame or scrollFrame.CraftTreeWheel then
+		return
+	end
+	scrollFrame.CraftTreeWheel = 1
+	scrollFrame:EnableMouse(1)
+	scrollFrame:EnableMouseWheel(1)
+	scrollFrame:SetScript("OnMouseWheel", function()
+		local step = ROW_HEIGHT * 3
+		local cur = this:GetVerticalScroll() or 0
+		local max = 0
+		if this.GetVerticalScrollRange then
+			max = this:GetVerticalScrollRange() or 0
+		end
+		local bar = getglobal(this:GetName() .. "ScrollBar")
+		if bar and bar.GetMinMaxValues then
+			local _, barMax = bar:GetMinMaxValues()
+			if barMax and barMax > max then
+				max = barMax
+			end
+		end
+		local new = cur - ((arg1 or 0) * step)
+		if new < 0 then
+			new = 0
+		elseif max > 0 and new > max then
+			new = max
+		end
+		this:SetVerticalScroll(new)
+		if bar then
+			bar:SetValue(new)
+		end
+	end)
+end
+
+local function ForwardWheelTo(scrollFrame, frame)
+	if not frame or not scrollFrame then
+		return
+	end
+	frame:EnableMouseWheel(1)
+	frame:SetScript("OnMouseWheel", function()
+		local step = ROW_HEIGHT * 3
+		local cur = scrollFrame:GetVerticalScroll() or 0
+		local max = 0
+		if scrollFrame.GetVerticalScrollRange then
+			max = scrollFrame:GetVerticalScrollRange() or 0
+		end
+		local bar = getglobal(scrollFrame:GetName() .. "ScrollBar")
+		if bar and bar.GetMinMaxValues then
+			local _, barMax = bar:GetMinMaxValues()
+			if barMax and barMax > max then
+				max = barMax
+			end
+		end
+		local new = cur - ((arg1 or 0) * step)
+		if new < 0 then
+			new = 0
+		elseif max > 0 and new > max then
+			new = max
+		end
+		scrollFrame:SetVerticalScroll(new)
+		if bar then
+			bar:SetValue(new)
+		end
+	end)
+end
+
+local function UpdateScroll(scrollFrame, child, height)
+	if not scrollFrame or not child then
+		return
+	end
+	local view = scrollFrame:GetHeight() or 0
+	if height < view then
+		height = view
+	end
+	child:SetHeight(height)
+	if scrollFrame.UpdateScrollChildRect then
+		scrollFrame:UpdateScrollChildRect()
+	end
+	local max = height - view
+	if max < 0 then
+		max = 0
+	end
+	local bar = getglobal(scrollFrame:GetName() .. "ScrollBar")
+	if bar then
+		bar:SetMinMaxValues(0, max)
+		bar:SetValue(0)
+	end
+	scrollFrame:SetVerticalScroll(0)
 end
 
 local function MakeIconButton(parent, size, name)
@@ -126,19 +273,19 @@ local function CreateTreeRow(index)
 	local row = CreateFrame("Frame", "CraftTreeTreeRow" .. index, CraftTreeTreeChild)
 	row:SetWidth(500)
 	row:SetHeight(ROW_HEIGHT)
+	row:EnableMouse(1)
 	row.icon = MakeIconButton(row, ICON_SIZE, "CraftTreeTreeRow" .. index .. "Icon")
 	row.icon:SetPoint("LEFT", row, "LEFT", 0, 0)
-	row.branch = row:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
-	row.branch:SetPoint("RIGHT", row.icon, "LEFT", -2, 0)
-	row.branch:SetText("")
 	row.label = row:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 	row.label:SetPoint("LEFT", row.icon, "RIGHT", 6, 0)
 	row.label:SetJustifyH("LEFT")
-	row.label:SetWidth(280)
+	row.label:SetWidth(300)
 	row.status = row:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
 	row.status:SetPoint("RIGHT", row, "RIGHT", -4, 0)
 	row.status:SetJustifyH("RIGHT")
-	row.status:SetWidth(160)
+	row.status:SetWidth(180)
+	ForwardWheelTo(CraftTreeTreeScroll, row)
+	ForwardWheelTo(CraftTreeTreeScroll, row.icon)
 	row:Hide()
 	return row
 end
@@ -152,6 +299,8 @@ local function CreateShopSlot(index)
 	slot.need = slot:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
 	slot.need:SetPoint("TOP", slot.icon, "BOTTOM", 0, -1)
 	slot.need:SetJustifyH("CENTER")
+	ForwardWheelTo(CraftTreeShopScroll, slot)
+	ForwardWheelTo(CraftTreeShopScroll, slot.icon)
 	slot:Hide()
 	return slot
 end
@@ -163,6 +312,10 @@ function CraftTree_InitUI()
 	if CraftTreeGoal and not CraftTreeGoal.icon then
 		CraftTree_InitGoal(CraftTreeGoal)
 	end
+	SetupMouseWheel(CraftTreeTreeScroll)
+	SetupMouseWheel(CraftTreeShopScroll)
+	ForwardWheelTo(CraftTreeTreeScroll, CraftTreeTreeChild)
+	ForwardWheelTo(CraftTreeShopScroll, CraftTreeShopChild)
 	local i
 	for i = 1, MAX_TREE_ROWS do
 		treeRows[i] = CreateTreeRow(i)
@@ -204,27 +357,45 @@ local function SetGoal(itemId, qty, node)
 	elseif src == "local" then
 		srcLabel = "local bags"
 	end
-	CraftTreeGoal.sub:SetText((extra ~= "" and (extra .. "  ·  ") or "") .. "Ownership: " .. srcLabel)
+	local skill = SkillLabel(itemId)
+	local bits = {}
+	if skill then
+		table.insert(bits, skill)
+	end
+	if extra ~= "" then
+		table.insert(bits, extra)
+	end
+	table.insert(bits, "Ownership: " .. srcLabel)
+	CraftTreeGoal.sub:SetText(table.concat(bits, "  ·  "))
+end
+
+local function SkillLabel(itemId)
+	local src = CraftTreeSources and CraftTreeSources[itemId]
+	if not src then
+		return nil
+	end
+	if src.profession and src.skill then
+		return src.profession .. " " .. src.skill
+	end
+	return src.text
 end
 
 local function RenderTree(node)
 	local flat = {}
 	FlattenTree(node, 0, flat)
-	-- skip root in tree list (shown in goal); start from children only? User asked: top = goal, under = mats. So show root in goal AND optionally in tree. I'll skip depth 0 in scroll to avoid duplicate.
 	local display = {}
 	local i
 	for i = 1, table.getn(flat) do
 		if flat[i].depth > 0 then
 			table.insert(display, flat[i])
 		elseif table.getn(flat) == 1 then
-			-- only root (base item, not a craft)
 			table.insert(display, flat[i])
 		end
 	end
 
 	local count = table.getn(display)
-	local height = math.max(230, count * ROW_HEIGHT + 8)
-	CraftTreeTreeChild:SetHeight(height)
+	local height = count * ROW_HEIGHT + 12
+	UpdateScroll(CraftTreeTreeScroll, CraftTreeTreeChild, height)
 
 	for i = 1, MAX_TREE_ROWS do
 		local row = treeRows[i]
@@ -245,31 +416,39 @@ local function RenderTree(node)
 			local prefix = n.leaf and "•" or "+"
 			local label = string.format("%s %s", prefix, name)
 			if not n.leaf and n.crafts and n.crafts > 0 then
-				label = label .. string.format("  (craft x%d)", n.crafts)
+				label = label .. string.format("  (x%d)", n.crafts)
 			end
 			row.label:SetText(label)
 			local r, g, b = QualityColor(quality)
 			row.label:SetTextColor(r, g, b)
-			if n.leaf then
-				local owned, cur, oth, src = CraftTree_GetOwned(n.id)
+
+			-- Right side: profession + skill (fallback to owned status for unknown base mats)
+			local skill = SkillLabel(n.id)
+			if skill then
+				row.status:SetText(skill)
+				if n.leaf then
+					row.status:SetTextColor(0.55, 0.85, 1.0)
+				else
+					row.status:SetTextColor(1.0, 0.82, 0.3)
+				end
+			elseif n.leaf then
+				local owned = CraftTree_GetOwned(n.id)
 				local short = math.max(0, n.need - owned)
 				if short == 0 then
 					row.status:SetText("OK")
 					row.status:SetTextColor(0.3, 0.9, 0.3)
 				else
-					row.status:SetText(string.format("need %d (own %d)", short, owned))
+					row.status:SetText(string.format("need %d", short))
 					row.status:SetTextColor(1, 0.35, 0.35)
 				end
 			else
-				row.status:SetText("intermediate")
-				row.status:SetTextColor(0.7, 0.7, 0.7)
+				row.status:SetText("")
 			end
 			row:Show()
 		else
 			row:Hide()
 		end
 	end
-	CraftTreeTreeScroll:SetVerticalScroll(0)
 end
 
 local function RenderShop(shopping)
@@ -305,17 +484,18 @@ local function RenderShop(shopping)
 		CraftTreeFrameShopSummary:SetText(string.format("(%d unique · %d needed · %d covered)", table.getn(list), missing, covered))
 	end
 
-	local cols = 12
+	local cols = 11
 	local total = table.getn(list)
 	local rows = math.max(1, math.ceil(total / cols))
-	CraftTreeShopChild:SetHeight(math.max(100, rows * (SHOP_ICON + 24)))
-	CraftTreeShopChild:SetWidth(math.max(510, cols * (SHOP_ICON + 8)))
+	local height = rows * (SHOP_ICON + 24) + 8
+	UpdateScroll(CraftTreeShopScroll, CraftTreeShopChild, height)
+	CraftTreeShopChild:SetWidth(math.max(500, cols * (SHOP_ICON + 8)))
 
 	for i = 1, MAX_SHOP_SLOTS do
 		local slot = shopSlots[i]
 		local row = list[i]
 		if row then
-			local name, texture, quality = ItemInfo(row.id)
+			local name, texture = ItemInfo(row.id)
 			local col = math.mod(i - 1, cols)
 			local r = math.floor((i - 1) / cols)
 			slot:ClearAllPoints()
@@ -335,7 +515,6 @@ local function RenderShop(shopping)
 			slot:Hide()
 		end
 	end
-	CraftTreeShopScroll:SetVerticalScroll(0)
 end
 
 local function ClearVisual()
@@ -371,7 +550,33 @@ end
 
 function CraftTree_RenderResult(itemId, qty, node, shopping)
 	CraftTree_InitUI()
+	lastRender = { itemId = itemId, qty = qty, node = node, shopping = shopping }
 	SetGoal(itemId, qty, node)
 	RenderTree(node)
 	RenderShop(shopping or {})
 end
+
+-- After tooltips load item data, refresh icons once.
+local refreshFrame = CreateFrame("Frame")
+refreshFrame.elapsed = 0
+refreshFrame:SetScript("OnUpdate", function()
+	if not lastRender then
+		return
+	end
+	this.elapsed = this.elapsed + (arg1 or 0)
+	if this.elapsed < 0.5 then
+		return
+	end
+	this.elapsed = 0
+	-- Only re-render a couple times after expand to pick up newly cached icons
+	if not this.passes then
+		this.passes = 0
+	end
+	this.passes = this.passes + 1
+	if this.passes <= 4 then
+		CraftTree_RenderResult(lastRender.itemId, lastRender.qty, lastRender.node, lastRender.shopping)
+	else
+		this.passes = 0
+		lastRender = nil
+	end
+end)

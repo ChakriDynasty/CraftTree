@@ -477,20 +477,116 @@ function CraftTree_Toggle()
 	end
 end
 
+-- Insert an item link/id into CraftTree and expand it.
+function CraftTree_ReceiveLink(link)
+	if not link or link == "" then
+		return false
+	end
+	if not CraftTreeFrame then
+		return false
+	end
+	CraftTreeFrame:Show()
+	if CraftTreeFrameInput then
+		CraftTreeFrameInput:SetText(link)
+		CraftTreeFrameInput:SetFocus()
+	end
+	CraftTree_OnInputEnter()
+	return true
+end
+
+local function CraftTreeWantsLinks()
+	return CraftTreeFrame and CraftTreeFrame:IsShown() and not IsAltKeyDown()
+end
+
+local hookedClicks = {}
+
+local function HookContainerClick(funcName)
+	if hookedClicks[funcName] then
+		return
+	end
+	local original = getglobal(funcName)
+	if type(original) ~= "function" then
+		return
+	end
+	hookedClicks[funcName] = 1
+	setglobal(funcName, function(button)
+		button = button or arg1 or "LeftButton"
+		if CraftTreeWantsLinks() and button == "LeftButton" and IsShiftKeyDown() then
+			local bag, slot
+			if this and this.GetParent and this.GetID then
+				local parent = this:GetParent()
+				if parent and parent.GetID then
+					bag = parent:GetID()
+				end
+				slot = this:GetID()
+			end
+			if bag ~= nil and slot ~= nil then
+				local link = GetContainerItemLink(bag, slot)
+				if link and CraftTree_ReceiveLink(link) then
+					return
+				end
+			end
+		end
+		return original(button)
+	end)
+end
+
+local chatInsertHooked = nil
+local function HookChatEditBoxInsert()
+	if not ChatFrameEditBox then
+		return
+	end
+	if chatInsertHooked then
+		return
+	end
+	local original = ChatFrameEditBox.Insert
+	if type(original) ~= "function" then
+		return
+	end
+	chatInsertHooked = 1
+	ChatFrameEditBox.Insert = function(self, text)
+		if CraftTreeWantsLinks() and text and string.find(text, "item:") then
+			CraftTree_ReceiveLink(text)
+			return
+		end
+		return original(self, text)
+	end
+end
+
+-- ChatEdit_InsertLink: used by default bags when chat is open
 local Original_ChatEdit_InsertLink = ChatEdit_InsertLink
 function ChatEdit_InsertLink(link)
-	if CraftTreeFrame and CraftTreeFrame:IsShown() and link then
-		local chatOpen = ChatFrameEditBox and ChatFrameEditBox:IsVisible()
-		if (CraftTreeFrameInput and CraftTreeFrameInput:HasFocus()) or not chatOpen then
-			CraftTreeFrameInput:SetText(link)
-			CraftTreeFrameInput:SetFocus()
-			CraftTree_OnInputEnter()
-			return true
-		end
+	if CraftTreeWantsLinks() and link and string.find(link, "item:") then
+		CraftTree_ReceiveLink(link)
+		return true
 	end
 	if Original_ChatEdit_InsertLink then
 		return Original_ChatEdit_InsertLink(link)
 	end
+end
+
+-- SetItemRef: shift-clicking an item link in chat
+local Original_SetItemRef = SetItemRef
+function SetItemRef(link, text, button)
+	if CraftTreeWantsLinks() and IsShiftKeyDown() and link and string.find(link, "^item:") then
+		if text and string.find(text, "item:") then
+			CraftTree_ReceiveLink(text)
+		else
+			CraftTree_ReceiveLink(link)
+		end
+		return
+	end
+	if Original_SetItemRef then
+		return Original_SetItemRef(link, text, button)
+	end
+end
+
+-- Install bag/bank click hooks (shift normally opens stack-split when chat is closed)
+local function InstallClickHooks()
+	HookContainerClick("ContainerFrameItemButton_OnClick")
+	HookContainerClick("BankFrameItemButtonGeneric_OnClick")
+	HookContainerClick("BankFrameItemButton_OnClick")
+	HookChatEditBoxInsert()
 end
 
 SLASH_CRAFTTREE1 = "/crafttree"
@@ -543,15 +639,26 @@ f:RegisterEvent("PLAYER_ENTERING_WORLD")
 f:RegisterEvent("BANKFRAME_OPENED")
 f:RegisterEvent("BANKFRAME_CLOSED")
 f:SetScript("OnEvent", function()
-	if event == "ADDON_LOADED" and arg1 == "CraftTree" then
-		local n = 0
-		if CraftTreeDB then
-			for _ in pairs(CraftTreeDB) do
-				n = n + 1
+	if event == "ADDON_LOADED" then
+		if arg1 == "CraftTree" then
+			local n = 0
+			if CraftTreeDB then
+				for _ in pairs(CraftTreeDB) do
+					n = n + 1
+				end
 			end
+			local bagshui = (Bagshui and "yes") or (BagshuiData and "data-only") or "no"
+			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96CraftTree|r loaded (" .. n .. " crafts, Bagshui: " .. bagshui .. "). /crafttree or /ct")
+			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96CraftTree:|r with window open, shift-click items from bags/chat (Alt+Shift = normal game behavior)")
+			InstallClickHooks()
+		elseif arg1 == "Bagshui" then
+			-- Re-hook chat insert after Bagshui loads
+			HookChatEditBoxInsert()
 		end
-		local bagshui = (Bagshui and "yes") or (BagshuiData and "data-only") or "no"
-		DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96CraftTree|r loaded (" .. n .. " crafts, Bagshui: " .. bagshui .. "). /crafttree or /ct")
+		return
+	end
+	if event == "PLAYER_ENTERING_WORLD" then
+		InstallClickHooks()
 		return
 	end
 	RefreshOpenReport()
