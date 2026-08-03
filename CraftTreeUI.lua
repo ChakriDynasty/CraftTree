@@ -312,6 +312,9 @@ local function ApplyExpandState(node, path)
 	end
 end
 
+local lastTogglePath = nil
+local lastToggleAt = 0
+
 local function ToggleExpand(node)
 	if not node or node.leaf or not node.children or table.getn(node.children) == 0 then
 		return false
@@ -320,6 +323,14 @@ local function ToggleExpand(node)
 	if not path then
 		return false
 	end
+	-- Debounce: child Button OnClick + parent Frame OnMouseUp can both fire once
+	local now = GetTime and GetTime() or 0
+	if lastTogglePath == path and (now - lastToggleAt) < 0.15 then
+		return false
+	end
+	lastTogglePath = path
+	lastToggleAt = now
+
 	if PathExpanded(path) then
 		expandState[path] = nil
 		node.expanded = false
@@ -330,6 +341,8 @@ local function ToggleExpand(node)
 	return true
 end
 
+-- Forward-declare so RerenderTree can call the local RenderTree (not a nil global)
+local RenderTree
 local function RerenderTree()
 	if treeRoot then
 		RenderTree(treeRoot)
@@ -392,7 +405,10 @@ local function StatusText(n)
 	return table.concat(bits, " · "), short
 end
 
-local function RenderTree(node)
+RenderTree = function(node)
+	if not node then
+		return
+	end
 	local flat = {}
 	FlattenTree(node, 0, flat)
 	local display = flat
@@ -478,8 +494,9 @@ local function RenderTree(node)
 					row.toggle:Show()
 					row.toggle:Enable()
 				else
-					row.toggle.text:SetText("")
-					row.toggle:Hide()
+					row.toggle.text:SetText(" ")
+					row.toggle:Show()
+					row.toggle:Disable()
 				end
 			end
 			if row.hl then
