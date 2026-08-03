@@ -37,6 +37,7 @@ local treeRows = {}
 local shopSlots = {}
 local uiReady = false
 local lastRender = nil
+local expandState = {} -- path -> true/false; crafts start collapsed
 
 local function NormalizeTexture(tex)
 	if type(tex) ~= "string" or tex == "" then
@@ -350,27 +351,6 @@ function CraftTree_InitGoal(frame)
 	frame.icon.icon:SetTexture(QUESTION)
 end
 
-local function CreateTreeRow(index)
-	local row = CreateFrame("Frame", "CraftTreeTreeRow" .. index, CraftTreeTreeChild)
-	row:SetWidth(500)
-	row:SetHeight(ROW_HEIGHT)
-	row:EnableMouse(1)
-	row.icon = MakeIconButton(row, ICON_SIZE, "CraftTreeTreeRow" .. index .. "Icon")
-	row.icon:SetPoint("LEFT", row, "LEFT", 0, 0)
-	row.label = row:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-	row.label:SetPoint("LEFT", row.icon, "RIGHT", 6, 0)
-	row.label:SetJustifyH("LEFT")
-	row.label:SetWidth(300)
-	row.status = row:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-	row.status:SetPoint("RIGHT", row, "RIGHT", -4, 0)
-	row.status:SetJustifyH("RIGHT")
-	row.status:SetWidth(180)
-	ForwardWheelTo(CraftTreeTreeScroll, row)
-	ForwardWheelTo(CraftTreeTreeScroll, row.icon)
-	row:Hide()
-	return row
-end
-
 local function CreateShopSlot(index)
 	local slot = CreateFrame("Frame", "CraftTreeShopSlot" .. index, CraftTreeShopChild)
 	slot:SetWidth(SHOP_ICON + 8)
@@ -396,40 +376,36 @@ local function CreateShopSlot(index)
 	return slot
 end
 
-function CraftTree_InitUI()
-	if uiReady then
-		return
+local function IsPathExpanded(path, depth)
+	if expandState[path] ~= nil then
+		return expandState[path]
 	end
-	if CraftTreeGoal and not CraftTreeGoal.icon then
-		CraftTree_InitGoal(CraftTreeGoal)
-	end
-	SetupMouseWheel(CraftTreeTreeScroll)
-	ForwardWheelTo(CraftTreeTreeScroll, CraftTreeTreeChild)
-	if CraftTreeShopChild then
-		CraftTreeShopChild:EnableMouseWheel(1)
-		CraftTreeShopChild:SetScript("OnMouseWheel", function()
-			if CraftTree_ShopScrollBy then
-				CraftTree_ShopScrollBy(-(arg1 or 0))
-			end
-		end)
-	end
-	local i
-	for i = 1, MAX_TREE_ROWS do
-		treeRows[i] = CreateTreeRow(i)
-	end
-	for i = 1, MAX_SHOP_SLOTS do
-		shopSlots[i] = CreateShopSlot(i)
-	end
-	CraftTree_InitSuggestions()
-	CraftTree_UpdateShopArrows()
-	uiReady = true
+	-- Nested crafts stay collapsed until clicked
+	return false
 end
 
-local function FlattenTree(node, depth, out)
-	table.insert(out, { node = node, depth = depth })
+local function TogglePath(path)
+	if not path then
+		return
+	end
+	expandState[path] = not IsPathExpanded(path, 0)
+end
+
+local function FlattenTree(node, depth, out, path)
+	path = path or "0"
+	if depth > 0 then
+		table.insert(out, { node = node, depth = depth, path = path })
+	end
+	if node.leaf or table.getn(node.children) == 0 then
+		return
+	end
+	-- Always show children of the goal; deeper crafts require click-to-expand
+	if depth > 0 and not IsPathExpanded(path, depth) then
+		return
+	end
 	local i
 	for i = 1, table.getn(node.children) do
-		FlattenTree(node.children[i], depth + 1, out)
+		FlattenTree(node.children[i], depth + 1, out, path .. "." .. i)
 	end
 end
 
@@ -442,6 +418,96 @@ local function SkillLabel(itemId)
 		return src.profession .. " " .. src.skill
 	end
 	return src.text
+end
+
+local function StatusText(n)
+	local owned = n.owned
+	if owned == nil then
+		owned = CraftTree_GetOwned(n.id) or 0
+	end
+	local short = n.short
+	if short == nil then
+		short = math.max(0, (n.need or 0) - owned)
+	end
+	local bits = {}
+	local skill = SkillLabel(n.id)
+	if skill then
+		table.insert(bits, skill)
+	end
+	if owned and owned > 0 then
+		table.insert(bits, "own " .. owned)
+	end
+	if short <= 0 then
+		table.insert(bits, "OK")
+	else
+		table.insert(bits, "need " .. short)
+	end
+	return table.concat(bits, " · "), short
+end
+
+local function RenderTree(node)
+	local flat = {}
+	FlattenTree(node, 0, flat)
+	local display = flat
+
+	local count = table.getn(display)
+	local height = count * ROW_HEIGHT + 12
+	UpdateScroll(CraftTreeTreeScroll, CraftTreeTreeChild, height)
+
+	local i
+	for i = 1, MAX_TREE_ROWS do
+		local row = treeRows[i]
+		local entry = display[i]
+		if entry then
+			local n = entry.node
+			local depth = entry.depth
+			local name, texture, quality = ItemInfo(n.id)
+			local indent = 8 + (depth - 1) * 18
+			if depth == 0 then
+				indent = 8
+			end
+			row:ClearAllPoints()
+			row:SetPoint("TOPLEFT", CraftTreeTreeChild, "TOPLEFT", indent, -((i - 1) * ROW_HEIGHT) - 2)
+			row.node = n
+			row.path = entry.path
+			row.icon.itemId = n.id
+			row.icon.icon:SetTexture(texture)
+			row.icon.count:SetText(n.need > 1 and tostring(n.need) or "")
+			local canExpand = (not n.leaf) and table.getn(n.children) > 0
+			local prefix = "•"
+			if canExpand then
+				if IsPathExpanded(entry.path, depth) then
+					prefix = "-"
+				else
+					prefix = "+"
+				end
+			end
+			local label = string.format("%s %s", prefix, name)
+			if not n.leaf and n.crafts and n.crafts > 0 then
+				label = label .. string.format("  (craft x%d)", n.crafts)
+			elseif not n.leaf and n.preview then
+				label = label .. "  (owned)"
+			end
+			row.label:SetText(label)
+			local r, g, b = QualityColor(quality)
+			row.label:SetTextColor(r, g, b)
+
+			local status, short = StatusText(n)
+			row.status:SetText(status)
+			if short <= 0 then
+				row.status:SetTextColor(0.3, 0.9, 0.3)
+			elseif canExpand then
+				row.status:SetTextColor(1.0, 0.82, 0.3)
+			else
+				row.status:SetTextColor(1, 0.35, 0.35)
+			end
+			row:Show()
+		else
+			row.node = nil
+			row.path = nil
+			row:Hide()
+		end
+	end
 end
 
 local function SetGoal(itemId, qty, node)
@@ -476,78 +542,77 @@ local function SetGoal(itemId, qty, node)
 		table.insert(bits, extra)
 	end
 	table.insert(bits, "Ownership: " .. srcLabel)
+	table.insert(bits, "Click crafts to expand mats")
 	CraftTreeGoal.sub:SetText(table.concat(bits, "  ·  "))
 end
 
-local function RenderTree(node)
-	local flat = {}
-	FlattenTree(node, 0, flat)
-	local display = {}
+local function CreateTreeRow(index)
+	local row = CreateFrame("Button", "CraftTreeTreeRow" .. index, CraftTreeTreeChild)
+	row:SetWidth(500)
+	row:SetHeight(ROW_HEIGHT)
+	row:EnableMouse(1)
+	row:RegisterForClicks("LeftButtonUp")
+	row.icon = MakeIconButton(row, ICON_SIZE, "CraftTreeTreeRow" .. index .. "Icon")
+	row.icon:SetPoint("LEFT", row, "LEFT", 0, 0)
+	row.icon:RegisterForClicks("LeftButtonUp")
+	row.label = row:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+	row.label:SetPoint("LEFT", row.icon, "RIGHT", 6, 0)
+	row.label:SetJustifyH("LEFT")
+	row.label:SetWidth(280)
+	row.status = row:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+	row.status:SetPoint("RIGHT", row, "RIGHT", -4, 0)
+	row.status:SetJustifyH("RIGHT")
+	row.status:SetWidth(200)
+	row:SetScript("OnClick", function()
+		if this.node and not this.node.leaf and table.getn(this.node.children) > 0 then
+			TogglePath(this.path)
+			if lastRender and lastRender.node then
+				RenderTree(lastRender.node)
+			end
+		end
+	end)
+	row.icon:SetScript("OnClick", function()
+		local parent = this:GetParent()
+		if parent and parent.node and not parent.node.leaf and table.getn(parent.node.children) > 0 then
+			TogglePath(parent.path)
+			if lastRender and lastRender.node then
+				RenderTree(lastRender.node)
+			end
+		end
+	end)
+	ForwardWheelTo(CraftTreeTreeScroll, row)
+	ForwardWheelTo(CraftTreeTreeScroll, row.icon)
+	row:Hide()
+	return row
+end
+
+function CraftTree_InitUI()
+	if uiReady then
+		return
+	end
+	if CraftTreeGoal and not CraftTreeGoal.icon then
+		CraftTree_InitGoal(CraftTreeGoal)
+	end
+	SetupMouseWheel(CraftTreeTreeScroll)
+	ForwardWheelTo(CraftTreeTreeScroll, CraftTreeTreeChild)
+	if CraftTreeShopChild then
+		CraftTreeShopChild:EnableMouseWheel(1)
+		CraftTreeShopChild:SetScript("OnMouseWheel", function()
+			if CraftTree_ShopScrollBy then
+				CraftTree_ShopScrollBy(-(arg1 or 0))
+			end
+		end)
+	end
 	local i
-	for i = 1, table.getn(flat) do
-		if flat[i].depth > 0 then
-			table.insert(display, flat[i])
-		elseif table.getn(flat) == 1 then
-			table.insert(display, flat[i])
-		end
-	end
-
-	local count = table.getn(display)
-	local height = count * ROW_HEIGHT + 12
-	UpdateScroll(CraftTreeTreeScroll, CraftTreeTreeChild, height)
-
 	for i = 1, MAX_TREE_ROWS do
-		local row = treeRows[i]
-		local entry = display[i]
-		if entry then
-			local n = entry.node
-			local depth = entry.depth
-			local name, texture, quality = ItemInfo(n.id)
-			local indent = 8 + (depth - 1) * 18
-			if depth == 0 then
-				indent = 8
-			end
-			row:ClearAllPoints()
-			row:SetPoint("TOPLEFT", CraftTreeTreeChild, "TOPLEFT", indent, -((i - 1) * ROW_HEIGHT) - 2)
-			row.icon.itemId = n.id
-			row.icon.icon:SetTexture(texture)
-			row.icon.count:SetText(n.need > 1 and tostring(n.need) or "")
-			local prefix = n.leaf and "•" or "+"
-			local label = string.format("%s %s", prefix, name)
-			if not n.leaf and n.crafts and n.crafts > 0 then
-				label = label .. string.format("  (x%d)", n.crafts)
-			end
-			row.label:SetText(label)
-			local r, g, b = QualityColor(quality)
-			row.label:SetTextColor(r, g, b)
-
-			-- Right side: profession + skill (fallback to owned status for unknown base mats)
-			local skill = SkillLabel(n.id)
-			if skill then
-				row.status:SetText(skill)
-				if n.leaf then
-					row.status:SetTextColor(0.55, 0.85, 1.0)
-				else
-					row.status:SetTextColor(1.0, 0.82, 0.3)
-				end
-			elseif n.leaf then
-				local owned = CraftTree_GetOwned(n.id)
-				local short = math.max(0, n.need - owned)
-				if short == 0 then
-					row.status:SetText("OK")
-					row.status:SetTextColor(0.3, 0.9, 0.3)
-				else
-					row.status:SetText(string.format("need %d", short))
-					row.status:SetTextColor(1, 0.35, 0.35)
-				end
-			else
-				row.status:SetText("")
-			end
-			row:Show()
-		else
-			row:Hide()
-		end
+		treeRows[i] = CreateTreeRow(i)
 	end
+	for i = 1, MAX_SHOP_SLOTS do
+		shopSlots[i] = CreateShopSlot(i)
+	end
+	CraftTree_InitSuggestions()
+	CraftTree_UpdateShopArrows()
+	uiReady = true
 end
 
 local function RenderShop(shopping)
@@ -598,7 +663,15 @@ local function RenderShop(shopping)
 			slot.icon.itemId = row.id
 			slot.icon.icon:SetTexture(texture)
 			slot.icon.count:SetText(tostring(row.count))
-			if row.short == 0 then
+			if row.owned and row.owned > 0 then
+				if row.short == 0 then
+					slot.need:SetText("OK")
+					slot.need:SetTextColor(0.3, 0.9, 0.3)
+				else
+					slot.need:SetText(string.format("own %d · need %d", row.owned, row.short))
+					slot.need:SetTextColor(1, 0.4, 0.4)
+				end
+			elseif row.short == 0 then
 				slot.need:SetText("OK")
 				slot.need:SetTextColor(0.3, 0.9, 0.3)
 			else
@@ -647,6 +720,10 @@ end
 function CraftTree_RenderResult(itemId, qty, node, shopping)
 	CraftTree_InitUI()
 	CraftTree_HideSuggestions()
+	-- Reset expand/collapse when switching items
+	if not lastRender or lastRender.itemId ~= itemId then
+		expandState = {}
+	end
 	lastRender = { itemId = itemId, qty = qty, node = node, shopping = shopping }
 	SetGoal(itemId, qty, node)
 	RenderTree(node)

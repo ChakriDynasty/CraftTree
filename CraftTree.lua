@@ -334,6 +334,9 @@ function CraftTree_Resolve(itemId, need, shopping, depth, stack)
 	depth = depth or 0
 	stack = stack or {}
 
+	local owned, cur, oth, src = CraftTree_GetOwned(itemId)
+	owned = owned or 0
+
 	local node = {
 		id = itemId,
 		need = need,
@@ -343,7 +346,23 @@ function CraftTree_Resolve(itemId, need, shopping, depth, stack)
 		crafts = 0,
 		yield = 1,
 		blocked = false,
+		owned = owned,
+		ownedCurrent = cur or 0,
+		ownedOther = oth or 0,
+		ownSrc = src,
+		applied = 0,
+		short = need,
 	}
+
+	-- Intermediate crafts/mats: use what you already own before expanding further.
+	-- Goal item (depth 0) always resolves the full requested quantity.
+	local produce = need
+	if depth > 0 then
+		local used = math.min(need, owned)
+		node.applied = used
+		produce = need - used
+	end
+	node.short = produce
 
 	if depth > MAX_DEPTH then
 		node.leaf = true
@@ -362,6 +381,7 @@ function CraftTree_Resolve(itemId, need, shopping, depth, stack)
 	local recipes = CraftTreeDB and CraftTreeDB[itemId]
 	if not recipes or not recipes[1] or not recipes[1].reagents then
 		node.leaf = true
+		-- Base mats: keep full branch need in shopping; UI subtracts owned for "need X"
 		shopping[itemId] = (shopping[itemId] or 0) + need
 		return node, shopping
 	end
@@ -371,7 +391,10 @@ function CraftTree_Resolve(itemId, need, shopping, depth, stack)
 	if yield < 1 then
 		yield = 1
 	end
-	local crafts = math.ceil(need / yield)
+	local crafts = 0
+	if produce > 0 then
+		crafts = math.ceil(produce / yield)
+	end
 	node.crafts = crafts
 	node.yield = yield
 	node.name = recipe.name ~= "" and recipe.name or node.name
@@ -380,14 +403,24 @@ function CraftTree_Resolve(itemId, need, shopping, depth, stack)
 		node.altRecipes = table.getn(recipes)
 	end
 
+	-- Fully covered by bags: still attach one craft's reagents so click-to-expand
+	-- can show the recipe, but dump that branch into a throwaway shopping list.
+	local childShopping = shopping
+	local childCrafts = crafts
+	if crafts == 0 then
+		childCrafts = 1
+		childShopping = {}
+		node.preview = true
+	end
+
 	stack[itemId] = true
 	local i
 	for i = 1, table.getn(recipe.reagents) do
 		local reag = recipe.reagents[i]
 		local rid = reag[1]
 		local rcnt = reag[2] or 1
-		local childNeed = rcnt * crafts
-		local child = CraftTree_Resolve(rid, childNeed, shopping, depth + 1, stack)
+		local childNeed = rcnt * childCrafts
+		local child = CraftTree_Resolve(rid, childNeed, childShopping, depth + 1, stack)
 		table.insert(node.children, child)
 	end
 	stack[itemId] = nil
