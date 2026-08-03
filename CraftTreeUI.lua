@@ -37,6 +37,10 @@ local treeRows = {}
 local shopSlots = {}
 local uiReady = false
 local lastRender = nil
+local expandState = {} -- path -> true (survives re-resolve / refresh)
+local treeRoot = nil
+local refreshPasses = 0
+local refreshElapsed = 0
 
 local function NormalizeTexture(tex)
 	if type(tex) ~= "string" or tex == "" then
@@ -291,15 +295,51 @@ local function IsExpanded(node)
 	return node.expanded == true
 end
 
-local function ToggleExpand(node)
-	if not node or node.leaf or not node.children or table.getn(node.children) == 0 then
+local function PathExpanded(path)
+	return expandState[path] == true
+end
+
+local function ApplyExpandState(node, path)
+	path = path or "0"
+	if not node then
 		return
 	end
-	node.expanded = not IsExpanded(node)
+	node.path = path
+	node.expanded = PathExpanded(path)
+	local i
+	for i = 1, table.getn(node.children or {}) do
+		ApplyExpandState(node.children[i], path .. "." .. i)
+	end
+end
+
+local function ToggleExpand(node)
+	if not node or node.leaf or not node.children or table.getn(node.children) == 0 then
+		return false
+	end
+	local path = node.path
+	if not path then
+		return false
+	end
+	if PathExpanded(path) then
+		expandState[path] = nil
+		node.expanded = false
+	else
+		expandState[path] = true
+		node.expanded = true
+	end
+	return true
+end
+
+local function RerenderTree()
+	if treeRoot then
+		RenderTree(treeRoot)
+	elseif lastRender and lastRender.node then
+		RenderTree(lastRender.node)
+	end
 end
 
 -- Accordion: goal's direct mats always listed; each craft starts collapsed.
--- Click a craft to unfold its reagents underneath (and click again to fold).
+-- Click a craft (or its +/-) to unfold its reagents underneath.
 local function FlattenTree(node, depth, out)
 	if depth > 0 then
 		table.insert(out, { node = node, depth = depth })
@@ -359,7 +399,31 @@ local function RenderTree(node)
 
 	local count = table.getn(display)
 	local height = count * ROW_HEIGHT + 12
-	UpdateScroll(CraftTreeTreeScroll, CraftTreeTreeChild, height)
+	-- Don't force scroll to top on every expand — only resize
+	if CraftTreeTreeChild then
+		local view = CraftTreeTreeScroll and CraftTreeTreeScroll:GetHeight() or 0
+		if height < view then
+			height = view
+		end
+		CraftTreeTreeChild:SetHeight(height)
+		if CraftTreeTreeScroll and CraftTreeTreeScroll.UpdateScrollChildRect then
+			CraftTreeTreeScroll:UpdateScrollChildRect()
+		end
+		local max = height - view
+		if max < 0 then
+			max = 0
+		end
+		local bar = getglobal("CraftTreeTreeScrollScrollBar")
+		if bar then
+			local cur = CraftTreeTreeScroll:GetVerticalScroll() or 0
+			bar:SetMinMaxValues(0, max)
+			if cur > max then
+				cur = max
+			end
+			bar:SetValue(cur)
+			CraftTreeTreeScroll:SetVerticalScroll(cur)
+		end
+	end
 
 	local i
 	for i = 1, MAX_TREE_ROWS do
@@ -406,6 +470,17 @@ local function RenderTree(node)
 				row.status:SetTextColor(1.0, 0.82, 0.3)
 			else
 				row.status:SetTextColor(1, 0.35, 0.35)
+			end
+
+			if row.toggle then
+				if canExpand then
+					row.toggle.text:SetText(IsExpanded(n) and "-" or "+")
+					row.toggle:Show()
+					row.toggle:Enable()
+				else
+					row.toggle.text:SetText("")
+					row.toggle:Hide()
+				end
 			end
 			if row.hl then
 				if canExpand then
@@ -454,71 +529,90 @@ local function SetGoal(itemId, qty, node)
 		table.insert(bits, extra)
 	end
 	table.insert(bits, "Ownership: " .. srcLabel)
-	table.insert(bits, "Click + crafts in the tree to unfold mats")
+	table.insert(bits, "Click + to unfold mats of mats")
 	CraftTreeGoal.sub:SetText(table.concat(bits, "  ·  "))
 end
 
 local function CreateTreeRow(index)
-	-- Frame (not Button) so child icon clicks don't eat the row click in Vanilla
 	local row = CreateFrame("Frame", "CraftTreeTreeRow" .. index, CraftTreeTreeChild)
 	row:SetWidth(500)
 	row:SetHeight(ROW_HEIGHT)
 	row:EnableMouse(1)
+
 	local hl = row:CreateTexture(nil, "BACKGROUND")
 	hl:SetAllPoints()
 	hl:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
 	hl:SetBlendMode("ADD")
 	hl:SetAlpha(0)
 	row.hl = hl
+
+	-- Explicit +/- toggle so expand always has a real click target
+	local toggle = CreateFrame("Button", "CraftTreeTreeRow" .. index .. "Toggle", row)
+	toggle:SetWidth(20)
+	toggle:SetHeight(20)
+	toggle:SetPoint("LEFT", row, "LEFT", 0, 0)
+	toggle:RegisterForClicks("LeftButtonUp")
+	local toggleText = toggle:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+	toggleText:SetPoint("CENTER", toggle, "CENTER", 0, 0)
+	toggle.text = toggleText
+	toggle:SetScript("OnClick", function()
+		local parent = this:GetParent()
+		if parent and parent.node and ToggleExpand(parent.node) then
+			RerenderTree()
+		end
+	end)
+	row.toggle = toggle
+
 	row.icon = MakeIconButton(row, ICON_SIZE, "CraftTreeTreeRow" .. index .. "Icon")
-	row.icon:SetPoint("LEFT", row, "LEFT", 0, 0)
+	row.icon:SetPoint("LEFT", toggle, "RIGHT", 2, 0)
+	row.icon:RegisterForClicks("LeftButtonUp")
+	row.icon:SetScript("OnClick", function()
+		local parent = this:GetParent()
+		if parent and parent.node and ToggleExpand(parent.node) then
+			RerenderTree()
+		end
+	end)
+
 	row.label = row:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 	row.label:SetPoint("LEFT", row.icon, "RIGHT", 6, 0)
 	row.label:SetJustifyH("LEFT")
-	row.label:SetWidth(280)
+	row.label:SetWidth(260)
 	row.status = row:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
 	row.status:SetPoint("RIGHT", row, "RIGHT", -4, 0)
 	row.status:SetJustifyH("RIGHT")
 	row.status:SetWidth(200)
 
 	row:SetScript("OnMouseUp", function()
-		if arg1 == "LeftButton" and this.node then
-			ToggleExpand(this.node)
-			if lastRender and lastRender.node then
-				RenderTree(lastRender.node)
-			end
+		if arg1 == "LeftButton" and this.node and ToggleExpand(this.node) then
+			RerenderTree()
 		end
 	end)
 	row:SetScript("OnEnter", function()
+		if this.node then
+			ShowItemTooltip(this, this.node.id)
+		end
 		if this.node and not this.node.leaf and this.node.children and table.getn(this.node.children) > 0 then
-			this.hl:SetAlpha(0.25)
+			this.hl:SetAlpha(0.3)
 		end
 	end)
 	row:SetScript("OnLeave", function()
+		HideTooltip()
 		if this.node and not this.node.leaf and this.node.children and table.getn(this.node.children) > 0 then
 			this.hl:SetAlpha(0.08)
 		else
 			this.hl:SetAlpha(0)
 		end
 	end)
-	row.icon:RegisterForClicks("LeftButtonUp")
-	row.icon:SetScript("OnClick", function()
-		local parent = this:GetParent()
-		if parent and parent.node then
-			ToggleExpand(parent.node)
-			if lastRender and lastRender.node then
-				RenderTree(lastRender.node)
-			end
-		end
-	end)
+
 	ForwardWheelTo(CraftTreeTreeScroll, row)
 	ForwardWheelTo(CraftTreeTreeScroll, row.icon)
+	ForwardWheelTo(CraftTreeTreeScroll, row.toggle)
 	row:Hide()
 	return row
 end
 
 function CraftTree_InitUI()
-	if uiReady then
+	if uiReady and treeRows[1] and treeRows[1].toggle then
 		return
 	end
 	if CraftTreeGoal and not CraftTreeGoal.icon then
@@ -530,12 +624,17 @@ function CraftTree_InitUI()
 	ForwardWheelTo(CraftTreeShopScroll, CraftTreeShopChild)
 	local i
 	for i = 1, MAX_TREE_ROWS do
+		if treeRows[i] then
+			treeRows[i]:Hide()
+		end
 		treeRows[i] = CreateTreeRow(i)
 	end
-	for i = 1, MAX_SHOP_SLOTS do
-		shopSlots[i] = CreateShopSlot(i)
+	if not uiReady then
+		for i = 1, MAX_SHOP_SLOTS do
+			shopSlots[i] = CreateShopSlot(i)
+		end
+		CraftTree_InitSuggestions()
 	end
-	CraftTree_InitSuggestions()
 	uiReady = true
 end
 
@@ -647,6 +746,13 @@ end
 function CraftTree_RenderResult(itemId, qty, node, shopping)
 	CraftTree_InitUI()
 	CraftTree_HideSuggestions()
+	if not lastRender or lastRender.itemId ~= itemId then
+		expandState = {}
+		refreshPasses = 0
+		refreshElapsed = 0
+	end
+	ApplyExpandState(node, "0")
+	treeRoot = node
 	lastRender = { itemId = itemId, qty = qty, node = node, shopping = shopping }
 	SetGoal(itemId, qty, node)
 	RenderTree(node)
@@ -855,27 +961,23 @@ function CraftTree_UpdateSuggestions()
 	HighlightSuggest(1)
 end
 
--- After tooltips load item data, refresh icons once.
+-- After tooltips load item data, refresh icons a few times (do NOT clear lastRender).
 local refreshFrame = CreateFrame("Frame")
-refreshFrame.elapsed = 0
 refreshFrame:SetScript("OnUpdate", function()
-	if not lastRender then
+	if not lastRender or not treeRoot then
 		return
 	end
-	this.elapsed = this.elapsed + (arg1 or 0)
-	if this.elapsed < 0.5 then
+	if refreshPasses >= 4 then
 		return
 	end
-	this.elapsed = 0
-	-- Only re-render a couple times after expand to pick up newly cached icons
-	if not this.passes then
-		this.passes = 0
+	refreshElapsed = refreshElapsed + (arg1 or 0)
+	if refreshElapsed < 0.5 then
+		return
 	end
-	this.passes = this.passes + 1
-	if this.passes <= 4 then
-		CraftTree_RenderResult(lastRender.itemId, lastRender.qty, lastRender.node, lastRender.shopping)
-	else
-		this.passes = 0
-		lastRender = nil
-	end
+	refreshElapsed = 0
+	refreshPasses = refreshPasses + 1
+	-- Re-draw same tree (keeps expand state) so newly cached icons appear
+	SetGoal(lastRender.itemId, lastRender.qty, treeRoot)
+	RenderTree(treeRoot)
+	RenderShop(lastRender.shopping or {})
 end)

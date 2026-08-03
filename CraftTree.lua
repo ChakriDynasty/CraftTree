@@ -559,85 +559,6 @@ function CraftTree_Toggle()
 	end
 end
 
--- Minimap button (circular gnome icon)
-local function EnsureMinimapDB()
-	CraftTreeDBPC = CraftTreeDBPC or {}
-	if CraftTreeDBPC.minimap == nil then
-		CraftTreeDBPC.minimap = {}
-	end
-	local m = CraftTreeDBPC.minimap
-	if m.show == nil then
-		m.show = true
-	end
-	if m.angle == nil then
-		m.angle = 220
-	end
-	if m.radius == nil then
-		m.radius = 78
-	end
-	return m
-end
-
-function CraftTreeMinimapButton_SetIcon()
-	local tex = CraftTreeMinimapButtonIcon
-	if not tex then
-		return
-	end
-	-- Vanilla resolves extension-less paths to .blp first. We ship a
-	-- palettized BLP2 (same format as Interface\Cursor\*.blp).
-	tex:SetTexture("Interface\\AddOns\\CraftTree\\Images\\CraftTreeMinimap")
-end
-
-function CraftTreeMinimapButton_UpdatePosition()
-	local m = EnsureMinimapDB()
-	if not CraftTreeMinimapButtonFrame then
-		return
-	end
-	CraftTreeMinimapButtonFrame:SetPoint(
-		"TOPLEFT",
-		"Minimap",
-		"TOPLEFT",
-		54 - (m.radius * cos(m.angle)),
-		(m.radius * sin(m.angle)) - 55
-	)
-end
-
-function CraftTreeMinimapButton_Init()
-	local m = EnsureMinimapDB()
-	if not CraftTreeMinimapButtonFrame then
-		return
-	end
-	CraftTreeMinimapButton_SetIcon()
-	if m.show then
-		CraftTreeMinimapButtonFrame:Show()
-		CraftTreeMinimapButton_UpdatePosition()
-	else
-		CraftTreeMinimapButtonFrame:Hide()
-	end
-end
-
-function CraftTreeMinimapButton_OnEnter()
-	GameTooltip:SetOwner(this, "ANCHOR_LEFT")
-	GameTooltip:SetText("CraftTree")
-	GameTooltipTextLeft1:SetTextColor(1, 1, 1)
-	GameTooltip:AddLine("Left-click: open CraftTree", 0.8, 0.8, 0.8)
-	GameTooltip:AddLine("Right-click + drag: move button", 0.8, 0.8, 0.8)
-	GameTooltip:Show()
-end
-
-function CraftTreeMinimapButton_BeingDragged()
-	local xpos, ypos = GetCursorPosition()
-	local xmin, ymin = Minimap:GetLeft(), Minimap:GetBottom()
-	xpos = xmin - xpos / UIParent:GetScale() + 70
-	ypos = ypos / UIParent:GetScale() - ymin - 70
-	local angle = math.deg(math.atan2(ypos, xpos))
-	if angle < 0 then
-		angle = angle + 360
-	end
-	EnsureMinimapDB().angle = angle
-	CraftTreeMinimapButton_UpdatePosition()
-end
-
 -- Insert an item link/id into CraftTree and expand it.
 function CraftTree_ReceiveLink(link)
 	if not link or link == "" then
@@ -860,23 +781,6 @@ SlashCmdList["CRAFTTREE"] = function(msg)
 		CraftTree_Toggle()
 		return
 	end
-	local lower = string.lower(msg)
-	if lower == "minimap" then
-		local m = EnsureMinimapDB()
-		m.show = not m.show
-		CraftTreeMinimapButton_Init()
-		DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96CraftTree:|r minimap button " .. (m.show and "shown" or "hidden"))
-		return
-	end
-	if lower == "minimap reset" then
-		local m = EnsureMinimapDB()
-		m.angle = 220
-		m.radius = 78
-		m.show = true
-		CraftTreeMinimapButton_Init()
-		DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96CraftTree:|r minimap button reset")
-		return
-	end
 	local qty = 1
 	local rest = msg
 	local _, _, q, r = string.find(msg, "^(%d+)%s+(.+)$")
@@ -928,8 +832,6 @@ f:SetScript("OnEvent", function()
 			local bagshui = (Bagshui and "yes") or (BagshuiData and "data-only") or "no"
 			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96CraftTree|r loaded (" .. n .. " crafts, Bagshui: " .. bagshui .. "). /crafttree or /ct")
 			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96CraftTree:|r with window open, shift-click items from bags/chat (Alt+Shift = normal game behavior)")
-			EnsureMinimapDB()
-			CraftTreeMinimapButton_Init()
 			InstallClickHooks()
 		elseif arg1 == "Bagshui" or arg1 == "AtlasLoot" then
 			-- Re-hook after inventory/loot addons load
@@ -941,7 +843,6 @@ f:SetScript("OnEvent", function()
 	if event == "PLAYER_ENTERING_WORLD" then
 		InstallClickHooks()
 		HookAtlasLoot()
-		CraftTreeMinimapButton_Init()
 		return
 	end
 	RefreshOpenReport()

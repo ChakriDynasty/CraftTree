@@ -16,8 +16,6 @@ Recipe data is extracted from [Otari98/AtlasLoot](https://github.com/Otari98/Atl
 - `/ct Linen Boots` — expand by name
 - `/ct 5 [Item Link]` — expand for quantity 5
 - Shift-click an item with the window open to auto-expand
-- Minimap gnome button — left-click opens CraftTree; right-click drag to move
-- `/ct minimap` — show/hide button · `/ct minimap reset` — reset position
 
 ### Layout
 

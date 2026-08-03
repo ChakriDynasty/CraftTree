@@ -42,7 +42,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentHint" inherits="GameFontDisableSmall" text="Type to search · Shift-click bags/AtlasLoot · Tab cycles suggestions">
+				<FontString name="$parentHint" inherits="GameFontDisableSmall" text="Click + on a craft to unfold its mats · Shift-click bags/AtlasLoot">
 					<Anchors>
 						<Anchor point="TOP">
 							<Offset>
@@ -344,94 +344,6 @@
 			<OnMouseDown>
 				if CraftTreeFrameInput then CraftTreeFrameInput:ClearFocus() end
 			</OnMouseDown>
-		</Scripts>
-	</Frame>
-
-	<!-- Minimap button — same pattern as AtlasLoot (Images/*.blp) -->
-	<Frame name="CraftTreeMinimapButtonFrame" parent="Minimap" enableMouse="true" hidden="true" frameStrata="LOW">
-		<Size>
-			<AbsDimension x="32" y="32"/>
-		</Size>
-		<Anchors>
-			<Anchor point="TOPLEFT" relativeTo="Minimap" relativePoint="RIGHT">
-				<Offset>
-					<AbsDimension x="2" y="0"/>
-				</Offset>
-			</Anchor>
-		</Anchors>
-		<Frames>
-			<Button name="CraftTreeMinimapButton">
-				<Size>
-					<AbsDimension x="33" y="33"/>
-				</Size>
-				<Anchors>
-					<Anchor point="TOPLEFT"/>
-				</Anchors>
-				<Layers>
-					<Layer level="BACKGROUND">
-						<Texture name="CraftTreeMinimapButtonIcon" file="Interface\AddOns\CraftTree\Images\CraftTreeMinimap">
-							<Size>
-								<AbsDimension x="21" y="21"/>
-							</Size>
-							<Anchors>
-								<Anchor point="TOPLEFT">
-									<Offset>
-										<AbsDimension x="6" y="-6"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
-						</Texture>
-					</Layer>
-					<Layer level="OVERLAY">
-						<Texture file="Interface\Minimap\MiniMap-TrackingBorder">
-							<Size>
-								<AbsDimension x="52" y="52"/>
-							</Size>
-							<Anchors>
-								<Anchor point="TOPLEFT"/>
-							</Anchors>
-						</Texture>
-					</Layer>
-				</Layers>
-				<HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight"/>
-				<Scripts>
-					<OnLoad>
-						this:RegisterForDrag("RightButton")
-						this.dragging = false
-						if CraftTreeMinimapButton_SetIcon then CraftTreeMinimapButton_SetIcon() end
-					</OnLoad>
-					<OnDragStart>
-						this.dragging = true
-					</OnDragStart>
-					<OnDragStop>
-						this.dragging = false
-					</OnDragStop>
-					<OnUpdate>
-						if this.dragging == true then
-							CraftTreeMinimapButton_BeingDragged()
-						end
-					</OnUpdate>
-					<OnClick>
-						if arg1 == "LeftButton" then
-							CraftTree_Toggle()
-						end
-					</OnClick>
-					<OnEnter>
-						CraftTreeMinimapButton_OnEnter()
-					</OnEnter>
-					<OnLeave>
-						GameTooltip:Hide()
-					</OnLeave>
-				</Scripts>
-			</Button>
-		</Frames>
-		<Scripts>
-			<OnLoad>
-				this:RegisterEvent("VARIABLES_LOADED")
-			</OnLoad>
-			<OnEvent>
-				CraftTreeMinimapButton_Init()
-			</OnEvent>
 		</Scripts>
 	</Frame>
 </Ui>
