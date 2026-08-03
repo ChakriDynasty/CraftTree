@@ -51,7 +51,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentCredit" inherits="GameFontDisableSmall" text="Made by the Holy Gnoman Empire by the grace of our emperor Gnormanbates" justifyH="CENTER">
+				<FontString name="$parentCredit" inherits="GameFontDisableSmall" text="Made by the Holy Gnoman Empire by the grace of our emperor Gnerf" justifyH="CENTER">
 					<Size>
 						<AbsDimension x="520" y="14"/>
 					</Size>
