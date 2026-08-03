@@ -3,7 +3,7 @@
 
 	<Frame name="CraftTreeFrame" toplevel="true" parent="UIParent" movable="true" enableMouse="true" hidden="true" frameStrata="DIALOG">
 		<Size>
-			<AbsDimension x="560" y="480"/>
+			<AbsDimension x="600" y="560"/>
 		</Size>
 		<Anchors>
 			<Anchor point="CENTER"/>
@@ -42,7 +42,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentHint" inherits="GameFontDisableSmall" text="Shift-click an item link into the box, or type a craft name / item ID">
+				<FontString name="$parentHint" inherits="GameFontDisableSmall" text="Shift-click an item, or type a craft name / item ID">
 					<Anchors>
 						<Anchor point="TOP">
 							<Offset>
@@ -69,6 +69,24 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
+				<FontString name="$parentShopTitle" inherits="GameFontNormal" text="Base materials">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT">
+							<Offset>
+								<AbsDimension x="24" y="128"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentShopSummary" inherits="GameFontDisableSmall" text="">
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parentShopTitle" relativePoint="RIGHT">
+							<Offset>
+								<AbsDimension x="8" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
 			</Layer>
 		</Layers>
 		<Frames>
@@ -84,7 +102,7 @@
 
 			<Frame name="$parentInputBox">
 				<Size>
-					<AbsDimension x="360" y="28"/>
+					<AbsDimension x="380" y="28"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
@@ -107,7 +125,7 @@
 				<Frames>
 					<EditBox name="CraftTreeFrameInput" letters="512" autoFocus="false" historyLines="8">
 						<Size>
-							<AbsDimension x="348" y="18"/>
+							<AbsDimension x="368" y="18"/>
 						</Size>
 						<Anchors>
 							<Anchor point="LEFT">
@@ -205,29 +223,77 @@
 				</Scripts>
 			</Button>
 
-			<ScrollFrame name="$parentScroll" inherits="UIPanelScrollFrameTemplate">
+			<!-- Goal item header -->
+			<Frame name="CraftTreeGoal">
 				<Size>
-					<AbsDimension x="500" y="340"/>
+					<AbsDimension x="540" y="52"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="20" y="-112"/>
+							<AbsDimension x="24" y="-108"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+					<EdgeSize>
+						<AbsValue val="12"/>
+					</EdgeSize>
+					<TileSize>
+						<AbsValue val="12"/>
+					</TileSize>
+					<BackgroundInsets>
+						<AbsInset left="3" right="3" top="3" bottom="3"/>
+					</BackgroundInsets>
+				</Backdrop>
+				<Scripts>
+					<OnLoad>
+						this:SetBackdropColor(0.08, 0.08, 0.1, 0.95)
+						this:SetBackdropBorderColor(0.7, 0.65, 0.3, 1)
+						if CraftTree_InitGoal then CraftTree_InitGoal(this) end
+					</OnLoad>
+				</Scripts>
+			</Frame>
+
+			<!-- Material tree -->
+			<ScrollFrame name="CraftTreeTreeScroll" inherits="UIPanelScrollFrameTemplate">
+				<Size>
+					<AbsDimension x="540" y="230"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="CraftTreeGoal" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="-6"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
 				<ScrollChild>
-					<EditBox name="CraftTreeOutput" multiLine="true" autoFocus="false" enableMouse="true">
+					<Frame name="CraftTreeTreeChild">
 						<Size>
-							<AbsDimension x="478" y="340"/>
+							<AbsDimension x="510" y="230"/>
 						</Size>
-						<FontString inherits="GameFontHighlightSmall"/>
-						<Scripts>
-							<OnEscapePressed>
-								this:ClearFocus()
-							</OnEscapePressed>
-						</Scripts>
-					</EditBox>
+					</Frame>
+				</ScrollChild>
+			</ScrollFrame>
+
+			<!-- Base mats shopping strip -->
+			<ScrollFrame name="CraftTreeShopScroll" inherits="UIPanelScrollFrameTemplate">
+				<Size>
+					<AbsDimension x="540" y="100"/>
+				</Size>
+				<Anchors>
+					<Anchor point="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="20" y="20"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<ScrollChild>
+					<Frame name="CraftTreeShopChild">
+						<Size>
+							<AbsDimension x="510" y="100"/>
+						</Size>
+					</Frame>
 				</ScrollChild>
 			</ScrollFrame>
 		</Frames>
@@ -236,6 +302,7 @@
 				this:RegisterForDrag("LeftButton")
 				tinsert(UISpecialFrames, "CraftTreeFrame")
 				CraftTreeFrameQty:SetText("1")
+				if CraftTree_InitUI then CraftTree_InitUI() end
 			</OnLoad>
 			<OnShow>
 				if CraftTree_OnShow then CraftTree_OnShow() end
@@ -248,7 +315,6 @@
 			</OnDragStop>
 			<OnMouseDown>
 				if CraftTreeFrameInput then CraftTreeFrameInput:ClearFocus() end
-				if CraftTreeOutput then CraftTreeOutput:ClearFocus() end
 			</OnMouseDown>
 		</Scripts>
 	</Frame>

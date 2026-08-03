@@ -419,83 +419,24 @@ function CraftTree_BuildReport(itemId, qty)
 		qty = 1
 	end
 	local node, shopping = CraftTree_Resolve(itemId, qty, {})
-	local lines = {}
-	local _, _, _, ownSource = CraftTree_GetOwned(itemId)
-	table.insert(lines, string.format("=== Tree: %dx %s (%d) ===", qty, ItemName(itemId), itemId))
-	table.insert(lines, "Ownership: " .. OwnershipSourceLabel(ownSource))
-	if not CraftTreeDB[itemId] then
-		table.insert(lines, "(Not a known craft result in DB — showing as base item)")
-	end
-	local treeLines = FormatTree(node)
-	local i
-	for i = 1, table.getn(treeLines) do
-		table.insert(lines, treeLines[i])
-	end
-	table.insert(lines, "")
-	table.insert(lines, "=== Shopping list (base mats) ===")
-	local shop = SortedShopping(shopping)
-	local missing = 0
-	local covered = 0
-	for i = 1, table.getn(shop) do
-		local row = shop[i]
-		local ownTxt = FormatOwnLine(row.count, row.owned, row.ownedCurrent, row.ownedOther, row.source)
-		table.insert(lines, string.format("  %dx %s — %s", row.count, row.name, ownTxt))
-		if row.short > 0 then
-			missing = missing + 1
-		else
-			covered = covered + 1
-		end
-	end
-	table.insert(lines, string.format("(%d unique — %d still needed, %d covered)", table.getn(shop), missing, covered))
-	return table.concat(lines, "\n"), node, shopping
-end
-
-local HELP_TEXT = table.concat({
-	"CraftTree — recursive craft materials",
-	"",
-	"How to use:",
-	"  1. Shift-click an item into the Item box (or type a craft name / item ID)",
-	"  2. Set Qty if you want more than 1",
-	"  3. Press Enter or click Expand",
-	"",
-	"Slash commands:",
-	"  /ct                  toggle this window",
-	"  /ct Linen Boots      expand by name",
-	"  /ct 5 [Item Link]    expand quantity 5",
-	"  /ct 2569             expand by item ID",
-	"",
-	"Tips:",
-	"  * lines = base materials (shopping list)",
-	"  + lines = intermediate crafts",
-	"  Ownership uses Bagshui when installed",
-}, "\n")
-
-function CraftTree_SetOutput(text)
-	if not CraftTreeOutput then
-		return
-	end
-	CraftTreeOutput:SetText(text or "")
-	local _, lines = string.gsub(text or "", "\n", "\n")
-	local height = math.max(340, (lines + 6) * 14)
-	CraftTreeOutput:SetHeight(height)
-	if CraftTreeFrameScroll then
-		CraftTreeFrameScroll:SetVerticalScroll(0)
-	end
+	return node, shopping
 end
 
 function CraftTree_OnShow()
-	if CraftTreeOutput and (not CraftTreeOutput:GetText() or CraftTreeOutput:GetText() == "") then
-		CraftTree_SetOutput(HELP_TEXT)
-	end
 	if CraftTreeFrameQty and (not CraftTreeFrameQty:GetText() or CraftTreeFrameQty:GetText() == "") then
 		CraftTreeFrameQty:SetText("1")
+	end
+	if CraftTree_InitUI then
+		CraftTree_InitUI()
 	end
 end
 
 function CraftTree_ShowReport(itemId, qty)
-	local text = CraftTree_BuildReport(itemId, qty)
-	CraftTree_SetOutput(text)
+	local node, shopping = CraftTree_BuildReport(itemId, qty)
 	CraftTreeFrame:Show()
+	if CraftTree_RenderResult then
+		CraftTree_RenderResult(itemId, qty, node, shopping)
+	end
 end
 
 function CraftTree_OnInputEnter()
@@ -503,28 +444,16 @@ function CraftTree_OnInputEnter()
 	local qty = tonumber(CraftTreeFrameQty and CraftTreeFrameQty:GetText()) or 1
 	local itemId = ParseItemId(text)
 	if not itemId then
-		local msg = {
-			"Could not parse that input.",
-			"",
-			"Tried to read: " .. tostring(text),
-			"",
-			"Use one of:",
-			"  - Shift-click an item link into the Item box",
-			"  - A craft name, e.g. Linen Boots",
-			"  - An item ID number",
-		}
+		local msg = "Could not parse that input. Shift-click a link, type a craft name, or an item ID."
 		local name = NormalizeName(text)
-		local suggestions = SuggestCraftNames(name, 8)
+		local suggestions = SuggestCraftNames(name, 5)
 		if table.getn(suggestions) > 0 then
-			table.insert(msg, "")
-			table.insert(msg, "Similar crafts:")
-			local i
-			for i = 1, table.getn(suggestions) do
-				table.insert(msg, "  - " .. suggestions[i])
-			end
+			msg = msg .. " Similar: " .. table.concat(suggestions, ", ")
 		end
-		CraftTree_SetOutput(table.concat(msg, "\n"))
 		CraftTreeFrame:Show()
+		if CraftTree_ShowMessage then
+			CraftTree_ShowMessage(msg)
+		end
 		return
 	end
 	if CraftTreeFrameInput then

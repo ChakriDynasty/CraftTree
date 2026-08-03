@@ -2,10 +2,11 @@
 ## Title: CraftTree
 ## Notes: Recursive craft material tree and base-mat shopping list (AtlasLoot data, Bagshui owned counts)
 ## Author: CraftTree
-## Version: 0.2.1
+## Version: 0.3.0
 ## SavedVariables: CraftTreeDBPC
 ## OptionalDeps: AtlasLoot, Bagshui
 
 Data\Recipes.lua
 CraftTree.lua
+CraftTreeUI.lua
 CraftTree.xml
