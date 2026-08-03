@@ -100,7 +100,7 @@ local function ItemInfo(itemId)
 		if recipes and recipes[1] and recipes[1].name ~= "" then
 			name = recipes[1].name
 		else
-			name = "item:" .. tostring(itemId)
+			name = "Unknown Item"
 		end
 	end
 
@@ -334,6 +334,17 @@ local function FlattenTree(node, depth, out)
 	end
 end
 
+local function SkillLabel(itemId)
+	local src = CraftTreeSources and CraftTreeSources[itemId]
+	if not src then
+		return nil
+	end
+	if src.profession and src.skill then
+		return src.profession .. " " .. src.skill
+	end
+	return src.text
+end
+
 local function SetGoal(itemId, qty, node)
 	if not CraftTreeGoal or not CraftTreeGoal.icon then
 		CraftTree_InitGoal(CraftTreeGoal)
@@ -367,17 +378,6 @@ local function SetGoal(itemId, qty, node)
 	end
 	table.insert(bits, "Ownership: " .. srcLabel)
 	CraftTreeGoal.sub:SetText(table.concat(bits, "  ·  "))
-end
-
-local function SkillLabel(itemId)
-	local src = CraftTreeSources and CraftTreeSources[itemId]
-	if not src then
-		return nil
-	end
-	if src.profession and src.skill then
-		return src.profession .. " " .. src.skill
-	end
-	return src.text
 end
 
 local function RenderTree(node)

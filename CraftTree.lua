@@ -16,7 +16,7 @@ local function ItemName(itemId)
 	if recipes and recipes[1] and recipes[1].name and recipes[1].name ~= "" then
 		return recipes[1].name
 	end
-	return "item:" .. tostring(itemId)
+	return "Unknown Item"
 end
 
 local function StripColors(text)
@@ -80,7 +80,7 @@ local function SuggestCraftNames(query, limit)
 	for itemId, recipes in pairs(CraftTreeDB) do
 		local n = recipes[1] and recipes[1].name
 		if n and string.find(string.lower(n), lower, 1, true) then
-			table.insert(out, string.format("%s (%d)", n, itemId))
+		table.insert(out, n)
 			if table.getn(out) >= limit then
 				break
 			end
@@ -461,7 +461,7 @@ function CraftTree_OnInputEnter()
 		if not shown then
 			shown = ItemName(itemId)
 		end
-		CraftTreeFrameInput:SetText(shown .. " (" .. tostring(itemId) .. ")")
+		CraftTreeFrameInput:SetText(shown)
 	end
 	CraftTree_ShowReport(itemId, qty)
 end
@@ -498,6 +498,49 @@ local function CraftTreeWantsLinks()
 	return CraftTreeFrame and CraftTreeFrame:IsShown() and not IsAltKeyDown()
 end
 
+-- Resolve AtlasLoot click ids ("s123", numeric item, etc.) to an item id/link.
+local function ResolveAtlasLootId(id)
+	if not id or id == 0 or id == "0" then
+		return nil
+	end
+	if type(id) == "number" then
+		return id
+	end
+	if type(id) ~= "string" then
+		return tonumber(id)
+	end
+	local prefix = string.sub(id, 1, 1)
+	local num = tonumber(string.sub(id, 2))
+	if prefix == "s" and num and GetSpellInfoAtlasLootDB and GetSpellInfoAtlasLootDB["craftspells"] then
+		local spell = GetSpellInfoAtlasLootDB["craftspells"][num]
+		if spell and spell["craftItem"] and spell["craftItem"] ~= 0 then
+			return spell["craftItem"]
+		end
+		return nil
+	end
+	if prefix == "e" and num and GetSpellInfoAtlasLootDB and GetSpellInfoAtlasLootDB["enchants"] then
+		local ench = GetSpellInfoAtlasLootDB["enchants"][num]
+		if ench and ench["item"] and ench["item"] ~= 0 then
+			return ench["item"]
+		end
+		return nil
+	end
+	return tonumber(id)
+end
+
+local function ReceiveItemId(itemId, name)
+	if not itemId then
+		return false
+	end
+	local link
+	if name then
+		link = "|Hitem:" .. tostring(itemId) .. ":0:0:0|h[" .. tostring(name) .. "]|h"
+	else
+		link = "item:" .. tostring(itemId) .. ":0:0:0"
+	end
+	return CraftTree_ReceiveLink(link)
+end
+
 local hookedClicks = {}
 
 local function HookContainerClick(funcName)
@@ -532,24 +575,81 @@ local function HookContainerClick(funcName)
 end
 
 local chatInsertHooked = nil
+local chatVisibleHooked = nil
+
 local function HookChatEditBoxInsert()
 	if not ChatFrameEditBox then
 		return
 	end
-	if chatInsertHooked then
-		return
-	end
-	local original = ChatFrameEditBox.Insert
-	if type(original) ~= "function" then
-		return
-	end
-	chatInsertHooked = 1
-	ChatFrameEditBox.Insert = function(self, text)
-		if CraftTreeWantsLinks() and text and string.find(text, "item:") then
-			CraftTree_ReceiveLink(text)
-			return
+	if not chatInsertHooked then
+		local original = ChatFrameEditBox.Insert
+		if type(original) == "function" then
+			chatInsertHooked = 1
+			ChatFrameEditBox.Insert = function(self, text)
+				if CraftTreeWantsLinks() and text and string.find(text, "item:") then
+					CraftTree_ReceiveLink(text)
+					return
+				end
+				return original(self, text)
+			end
 		end
-		return original(self, text)
+	end
+	-- Make bags/AtlasLoot take the "chat open" path (InsertLink) while CraftTree is open.
+	if not chatVisibleHooked and ChatFrameEditBox.IsVisible then
+		chatVisibleHooked = 1
+		local origVisible = ChatFrameEditBox.IsVisible
+		ChatFrameEditBox.IsVisible = function(self)
+			if CraftTreeWantsLinks() then
+				return 1
+			end
+			return origVisible(self)
+		end
+	end
+end
+
+local atlasLootHooked = nil
+local function HookAtlasLoot()
+	if atlasLootHooked then
+		return
+	end
+	if type(AtlasLoot_SayItemReagents) ~= "function" and type(AtlasLootItem_OnClick) ~= "function" then
+		return
+	end
+	atlasLootHooked = 1
+
+	if type(AtlasLoot_SayItemReagents) == "function" then
+		local original = AtlasLoot_SayItemReagents
+		AtlasLoot_SayItemReagents = function(id, color, name, safe)
+			if CraftTreeWantsLinks() then
+				local itemId = ResolveAtlasLootId(id)
+				if itemId and ReceiveItemId(itemId, name) then
+					return
+				end
+			end
+			return original(id, color, name, safe)
+		end
+	end
+
+	if type(AtlasLootItem_OnClick) == "function" then
+		local original = AtlasLootItem_OnClick
+		AtlasLootItem_OnClick = function()
+			if CraftTreeWantsLinks() and IsShiftKeyDown() and this and this.itemID and this.itemID ~= 0 then
+				local itemId = ResolveAtlasLootId(this.itemID)
+				local name
+				if this.GetID then
+					local fs = getglobal("AtlasLootItem_" .. this:GetID() .. "_Name")
+					if fs then
+						name = fs:GetText()
+						name = string.gsub(name or "", "|cff%x%x%x%x%x%x", "")
+						name = string.gsub(name, "|r", "")
+					end
+				end
+				if itemId and ReceiveItemId(itemId, name) then
+					return
+				end
+			end
+			return original()
+		end
 	end
 end
 
@@ -581,12 +681,12 @@ function SetItemRef(link, text, button)
 	end
 end
 
--- Install bag/bank click hooks (shift normally opens stack-split when chat is closed)
 local function InstallClickHooks()
 	HookContainerClick("ContainerFrameItemButton_OnClick")
 	HookContainerClick("BankFrameItemButtonGeneric_OnClick")
 	HookContainerClick("BankFrameItemButton_OnClick")
 	HookChatEditBoxInsert()
+	HookAtlasLoot()
 end
 
 SLASH_CRAFTTREE1 = "/crafttree"
@@ -651,14 +751,16 @@ f:SetScript("OnEvent", function()
 			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96CraftTree|r loaded (" .. n .. " crafts, Bagshui: " .. bagshui .. "). /crafttree or /ct")
 			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96CraftTree:|r with window open, shift-click items from bags/chat (Alt+Shift = normal game behavior)")
 			InstallClickHooks()
-		elseif arg1 == "Bagshui" then
-			-- Re-hook chat insert after Bagshui loads
-			HookChatEditBoxInsert()
+		elseif arg1 == "Bagshui" or arg1 == "AtlasLoot" then
+			-- Re-hook after inventory/loot addons load
+			InstallClickHooks()
+			HookAtlasLoot()
 		end
 		return
 	end
 	if event == "PLAYER_ENTERING_WORLD" then
 		InstallClickHooks()
+		HookAtlasLoot()
 		return
 	end
 	RefreshOpenReport()
