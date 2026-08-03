@@ -46,7 +46,19 @@
 					<Anchors>
 						<Anchor point="TOP">
 							<Offset>
-								<AbsDimension x="0" y="-36"/>
+								<AbsDimension x="0" y="-48"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentCredit" inherits="GameFontDisableSmall" text="Made by the Holy Gnoman Empire by the grace of our emperor Gnormanbates" justifyH="CENTER">
+					<Size>
+						<AbsDimension x="520" y="14"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOP">
+							<Offset>
+								<AbsDimension x="0" y="-22"/>
 							</Offset>
 						</Anchor>
 					</Anchors>
@@ -55,7 +67,7 @@
 					<Anchors>
 						<Anchor point="TOPLEFT">
 							<Offset>
-								<AbsDimension x="24" y="-58"/>
+								<AbsDimension x="24" y="-68"/>
 							</Offset>
 						</Anchor>
 					</Anchors>
@@ -64,7 +76,7 @@
 					<Anchors>
 						<Anchor point="TOPRIGHT">
 							<Offset>
-								<AbsDimension x="-110" y="-58"/>
+								<AbsDimension x="-110" y="-68"/>
 							</Offset>
 						</Anchor>
 					</Anchors>
@@ -83,18 +95,6 @@
 						<Anchor point="LEFT" relativeTo="$parentShopTitle" relativePoint="RIGHT">
 							<Offset>
 								<AbsDimension x="8" y="0"/>
-							</Offset>
-						</Anchor>
-					</Anchors>
-				</FontString>
-				<FontString name="$parentCredit" inherits="GameFontDisableSmall" text="Made by the Holy Gnoman Empire by the grace of our emperor Gnormanbates" justifyH="RIGHT">
-					<Size>
-						<AbsDimension x="280" y="36"/>
-					</Size>
-					<Anchors>
-						<Anchor point="BOTTOMRIGHT">
-							<Offset>
-								<AbsDimension x="-28" y="128"/>
 							</Offset>
 						</Anchor>
 					</Anchors>
@@ -119,7 +119,7 @@
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="24" y="-74"/>
+							<AbsDimension x="24" y="-84"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -160,9 +160,11 @@
 							</OnEscapePressed>
 							<OnEditFocusGained>
 								this:HighlightText()
+								this.craftTreeFocused = 1
 								if CraftTree_UpdateSuggestions then CraftTree_UpdateSuggestions() end
 							</OnEditFocusGained>
 							<OnEditFocusLost>
+								this.craftTreeFocused = nil
 								if CraftTree_HideSuggestionsDelayed then CraftTree_HideSuggestionsDelayed() end
 							</OnEditFocusLost>
 							<OnTextChanged>
@@ -257,7 +259,7 @@
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="24" y="-108"/>
+							<AbsDimension x="24" y="-118"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -302,25 +304,68 @@
 				</ScrollChild>
 			</ScrollFrame>
 
-			<!-- Base mats shopping strip -->
-			<ScrollFrame name="CraftTreeShopScroll" inherits="UIPanelScrollFrameTemplate">
+			<!-- Base mats shopping strip (horizontal scroll) -->
+			<Button name="CraftTreeShopLeft" inherits="UIPanelButtonTemplate" text="&lt;">
 				<Size>
-					<AbsDimension x="540" y="100"/>
+					<AbsDimension x="24" y="72"/>
 				</Size>
 				<Anchors>
 					<Anchor point="BOTTOMLEFT">
 						<Offset>
-							<AbsDimension x="20" y="20"/>
+							<AbsDimension x="18" y="28"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						if CraftTree_ShopScrollBy then CraftTree_ShopScrollBy(-1) end
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="CraftTreeShopRight" inherits="UIPanelButtonTemplate" text="&gt;">
+				<Size>
+					<AbsDimension x="24" y="72"/>
+				</Size>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="-18" y="28"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						if CraftTree_ShopScrollBy then CraftTree_ShopScrollBy(1) end
+					</OnClick>
+				</Scripts>
+			</Button>
+			<ScrollFrame name="CraftTreeShopScroll">
+				<Size>
+					<AbsDimension x="500" y="100"/>
+				</Size>
+				<Anchors>
+					<Anchor point="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="46" y="20"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
 				<ScrollChild>
 					<Frame name="CraftTreeShopChild">
 						<Size>
-							<AbsDimension x="510" y="100"/>
+							<AbsDimension x="500" y="100"/>
 						</Size>
 					</Frame>
 				</ScrollChild>
+				<Scripts>
+					<OnLoad>
+						this:EnableMouseWheel(1)
+						this:EnableMouse(1)
+					</OnLoad>
+					<OnMouseWheel>
+						if CraftTree_ShopScrollBy then CraftTree_ShopScrollBy(-(arg1 or 0)) end
+					</OnMouseWheel>
+				</Scripts>
 			</ScrollFrame>
 		</Frames>
 		<Scripts>
@@ -345,8 +390,8 @@
 		</Scripts>
 	</Frame>
 
-	<!-- Circular gnome minimap button -->
-	<Frame name="CraftTreeMinimapButtonFrame" parent="Minimap" enableMouse="true" hidden="false" frameStrata="MEDIUM">
+	<!-- Minimap button — same pattern as AtlasLoot (Images/*.blp) -->
+	<Frame name="CraftTreeMinimapButtonFrame" parent="Minimap" enableMouse="true" hidden="true" frameStrata="LOW">
 		<Size>
 			<AbsDimension x="32" y="32"/>
 		</Size>
@@ -359,18 +404,18 @@
 		</Anchors>
 		<Frames>
 			<Button name="CraftTreeMinimapButton">
+				<HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight"/>
 				<Size>
-					<AbsDimension x="32" y="32"/>
+					<AbsDimension x="33" y="33"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT"/>
 				</Anchors>
-				<NormalTexture file="Interface\AddOns\CraftTree\Textures\MinimapIcon"/>
-				<PushedTexture file="Interface\AddOns\CraftTree\Textures\MinimapIcon"/>
+				<NormalTexture file="Interface\AddOns\CraftTree\Images\CraftTreeMinimap"/>
+				<PushedTexture file="Interface\AddOns\CraftTree\Images\CraftTreeMinimap"/>
 				<HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight"/>
 				<Scripts>
 					<OnLoad>
-						this:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 						this:RegisterForDrag("RightButton")
 						this.dragging = false
 					</OnLoad>
@@ -381,7 +426,7 @@
 						this.dragging = false
 					</OnDragStop>
 					<OnUpdate>
-						if this.dragging then
+						if this.dragging == true then
 							CraftTreeMinimapButton_BeingDragged()
 						end
 					</OnUpdate>

@@ -224,6 +224,87 @@ local function UpdateScroll(scrollFrame, child, height)
 	scrollFrame:SetVerticalScroll(0)
 end
 
+local function UpdateHScroll(scrollFrame, child, width)
+	if not scrollFrame or not child then
+		return
+	end
+	local view = scrollFrame:GetWidth() or 0
+	if width < view then
+		width = view
+	end
+	child:SetWidth(width)
+	if scrollFrame.UpdateScrollChildRect then
+		scrollFrame:UpdateScrollChildRect()
+	end
+	scrollFrame:SetHorizontalScroll(0)
+	if CraftTree_UpdateShopArrows then
+		CraftTree_UpdateShopArrows()
+	end
+end
+
+function CraftTree_UpdateShopArrows()
+	local scrollFrame = CraftTreeShopScroll
+	if not scrollFrame then
+		return
+	end
+	local cur = scrollFrame:GetHorizontalScroll() or 0
+	local max = 0
+	if scrollFrame.GetHorizontalScrollRange then
+		max = scrollFrame:GetHorizontalScrollRange() or 0
+	else
+		local child = CraftTreeShopChild
+		local view = scrollFrame:GetWidth() or 0
+		local width = child and child:GetWidth() or 0
+		max = width - view
+		if max < 0 then
+			max = 0
+		end
+	end
+	if CraftTreeShopLeft then
+		if cur <= 0 then
+			CraftTreeShopLeft:Disable()
+		else
+			CraftTreeShopLeft:Enable()
+		end
+	end
+	if CraftTreeShopRight then
+		if cur >= max then
+			CraftTreeShopRight:Disable()
+		else
+			CraftTreeShopRight:Enable()
+		end
+	end
+end
+
+function CraftTree_ShopScrollBy(dir)
+	local scrollFrame = CraftTreeShopScroll
+	if not scrollFrame then
+		return
+	end
+	local step = (SHOP_ICON + 8) * 3
+	local cur = scrollFrame:GetHorizontalScroll() or 0
+	local max = 0
+	if scrollFrame.GetHorizontalScrollRange then
+		max = scrollFrame:GetHorizontalScrollRange() or 0
+	else
+		local child = CraftTreeShopChild
+		local view = scrollFrame:GetWidth() or 0
+		local width = child and child:GetWidth() or 0
+		max = width - view
+		if max < 0 then
+			max = 0
+		end
+	end
+	local new = cur + ((dir or 0) * step)
+	if new < 0 then
+		new = 0
+	elseif max > 0 and new > max then
+		new = max
+	end
+	scrollFrame:SetHorizontalScroll(new)
+	CraftTree_UpdateShopArrows()
+end
+
 local function MakeIconButton(parent, size, name)
 	local btn = CreateFrame("Button", name, parent)
 	btn:SetWidth(size)
@@ -299,8 +380,18 @@ local function CreateShopSlot(index)
 	slot.need = slot:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
 	slot.need:SetPoint("TOP", slot.icon, "BOTTOM", 0, -1)
 	slot.need:SetJustifyH("CENTER")
-	ForwardWheelTo(CraftTreeShopScroll, slot)
-	ForwardWheelTo(CraftTreeShopScroll, slot.icon)
+	slot:EnableMouseWheel(1)
+	slot:SetScript("OnMouseWheel", function()
+		if CraftTree_ShopScrollBy then
+			CraftTree_ShopScrollBy(-(arg1 or 0))
+		end
+	end)
+	slot.icon:EnableMouseWheel(1)
+	slot.icon:SetScript("OnMouseWheel", function()
+		if CraftTree_ShopScrollBy then
+			CraftTree_ShopScrollBy(-(arg1 or 0))
+		end
+	end)
 	slot:Hide()
 	return slot
 end
@@ -313,9 +404,15 @@ function CraftTree_InitUI()
 		CraftTree_InitGoal(CraftTreeGoal)
 	end
 	SetupMouseWheel(CraftTreeTreeScroll)
-	SetupMouseWheel(CraftTreeShopScroll)
 	ForwardWheelTo(CraftTreeTreeScroll, CraftTreeTreeChild)
-	ForwardWheelTo(CraftTreeShopScroll, CraftTreeShopChild)
+	if CraftTreeShopChild then
+		CraftTreeShopChild:EnableMouseWheel(1)
+		CraftTreeShopChild:SetScript("OnMouseWheel", function()
+			if CraftTree_ShopScrollBy then
+				CraftTree_ShopScrollBy(-(arg1 or 0))
+			end
+		end)
+	end
 	local i
 	for i = 1, MAX_TREE_ROWS do
 		treeRows[i] = CreateTreeRow(i)
@@ -324,6 +421,7 @@ function CraftTree_InitUI()
 		shopSlots[i] = CreateShopSlot(i)
 	end
 	CraftTree_InitSuggestions()
+	CraftTree_UpdateShopArrows()
 	uiReady = true
 end
 
@@ -485,22 +583,18 @@ local function RenderShop(shopping)
 		CraftTreeFrameShopSummary:SetText(string.format("(%d unique · %d needed · %d covered)", table.getn(list), missing, covered))
 	end
 
-	local cols = 11
-	local total = table.getn(list)
-	local rows = math.max(1, math.ceil(total / cols))
-	local height = rows * (SHOP_ICON + 24) + 8
-	UpdateScroll(CraftTreeShopScroll, CraftTreeShopChild, height)
-	CraftTreeShopChild:SetWidth(math.max(500, cols * (SHOP_ICON + 8)))
+	local cols = table.getn(list)
+	local width = math.max(500, cols * (SHOP_ICON + 8) + 8)
+	CraftTreeShopChild:SetHeight(SHOP_ICON + 28)
+	UpdateHScroll(CraftTreeShopScroll, CraftTreeShopChild, width)
 
 	for i = 1, MAX_SHOP_SLOTS do
 		local slot = shopSlots[i]
 		local row = list[i]
 		if row then
 			local name, texture = ItemInfo(row.id)
-			local col = math.mod(i - 1, cols)
-			local r = math.floor((i - 1) / cols)
 			slot:ClearAllPoints()
-			slot:SetPoint("TOPLEFT", CraftTreeShopChild, "TOPLEFT", col * (SHOP_ICON + 8), -(r * (SHOP_ICON + 24)))
+			slot:SetPoint("TOPLEFT", CraftTreeShopChild, "TOPLEFT", (i - 1) * (SHOP_ICON + 8), -4)
 			slot.icon.itemId = row.id
 			slot.icon.icon:SetTexture(texture)
 			slot.icon.count:SetText(tostring(row.count))
@@ -516,6 +610,7 @@ local function RenderShop(shopping)
 			slot:Hide()
 		end
 	end
+	CraftTree_UpdateShopArrows()
 end
 
 local function ClearVisual()
@@ -723,7 +818,7 @@ function CraftTree_UpdateSuggestions()
 	end
 	suggestIgnore = nil
 
-	if not CraftTreeFrameInput:HasFocus() then
+	if not CraftTreeFrameInput.craftTreeFocused then
 		CraftTree_HideSuggestions()
 		return
 	end
