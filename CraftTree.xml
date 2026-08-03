@@ -1,9 +1,9 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
 
-	<Frame name="CraftTreeFrame" toplevel="true" parent="UIParent" movable="true" enableMouse="true" hidden="true">
+	<Frame name="CraftTreeFrame" toplevel="true" parent="UIParent" movable="true" enableMouse="true" hidden="true" frameStrata="DIALOG">
 		<Size>
-			<AbsDimension x="520" y="420"/>
+			<AbsDimension x="560" y="480"/>
 		</Size>
 		<Anchors>
 			<Anchor point="CENTER"/>
@@ -21,11 +21,50 @@
 		</Backdrop>
 		<Layers>
 			<Layer level="ARTWORK">
+				<Texture name="$parentHeader" file="Interface\DialogFrame\UI-DialogBox-Header">
+					<Size>
+						<AbsDimension x="360" y="64"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOP">
+							<Offset>
+								<AbsDimension x="0" y="12"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
 				<FontString name="$parentTitle" inherits="GameFontNormal" text="CraftTree">
 					<Anchors>
 						<Anchor point="TOP">
 							<Offset>
-								<AbsDimension x="0" y="-16"/>
+								<AbsDimension x="0" y="-2"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentHint" inherits="GameFontDisableSmall" text="Shift-click an item link into the box, or type a craft name / item ID">
+					<Anchors>
+						<Anchor point="TOP">
+							<Offset>
+								<AbsDimension x="0" y="-36"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentItemLabel" inherits="GameFontNormalSmall" text="Item">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="24" y="-58"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentQtyLabel" inherits="GameFontNormalSmall" text="Qty">
+					<Anchors>
+						<Anchor point="TOPRIGHT">
+							<Offset>
+								<AbsDimension x="-110" y="-58"/>
 							</Offset>
 						</Anchor>
 					</Anchors>
@@ -37,70 +76,123 @@
 				<Anchors>
 					<Anchor point="TOPRIGHT">
 						<Offset>
-							<AbsDimension x="-5" y="-5"/>
+							<AbsDimension x="-4" y="-4"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
 			</Button>
 
-			<EditBox name="$parentInput" letters="64" autoFocus="false">
+			<Frame name="$parentInputBox">
 				<Size>
-					<AbsDimension x="280" y="20"/>
+					<AbsDimension x="360" y="28"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="24" y="-40"/>
+							<AbsDimension x="24" y="-74"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
-				<Layers>
-					<Layer level="BACKGROUND">
-						<Texture file="Interface\ChatFrame\UI-ChatInputBorder-Left">
-							<Size>
-								<AbsDimension x="75" y="32"/>
-							</Size>
-							<Anchors>
-								<Anchor point="LEFT">
-									<Offset>
-										<AbsDimension x="-10" y="0"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
-							<TexCoords left="0" right="0.29296875" top="0" bottom="1.0"/>
-						</Texture>
-						<Texture file="Interface\ChatFrame\UI-ChatInputBorder-Right">
-							<Size>
-								<AbsDimension x="75" y="32"/>
-							</Size>
-							<Anchors>
-								<Anchor point="RIGHT">
-									<Offset>
-										<AbsDimension x="10" y="0"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
-							<TexCoords left="0.70703125" right="1.0" top="0" bottom="1.0"/>
-						</Texture>
-					</Layer>
-				</Layers>
-				<FontString inherits="ChatFontNormal"/>
+				<Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+					<EdgeSize>
+						<AbsValue val="12"/>
+					</EdgeSize>
+					<TileSize>
+						<AbsValue val="12"/>
+					</TileSize>
+					<BackgroundInsets>
+						<AbsInset left="3" right="3" top="3" bottom="3"/>
+					</BackgroundInsets>
+				</Backdrop>
+				<Frames>
+					<EditBox name="CraftTreeFrameInput" letters="512" autoFocus="false" historyLines="8">
+						<Size>
+							<AbsDimension x="348" y="18"/>
+						</Size>
+						<Anchors>
+							<Anchor point="LEFT">
+								<Offset>
+									<AbsDimension x="6" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<FontString inherits="ChatFontNormal"/>
+						<Scripts>
+							<OnEnterPressed>
+								CraftTree_OnInputEnter()
+							</OnEnterPressed>
+							<OnEscapePressed>
+								this:ClearFocus()
+							</OnEscapePressed>
+							<OnEditFocusGained>
+								this:HighlightText()
+							</OnEditFocusGained>
+						</Scripts>
+					</EditBox>
+				</Frames>
 				<Scripts>
-					<OnEnterPressed>
-						CraftTree_OnInputEnter()
-					</OnEnterPressed>
-					<OnEscapePressed>
-						this:ClearFocus()
-					</OnEscapePressed>
+					<OnLoad>
+						this:SetBackdropColor(0, 0, 0, 0.9)
+						this:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
+					</OnLoad>
 				</Scripts>
-			</EditBox>
+			</Frame>
+
+			<Frame name="$parentQtyBox">
+				<Size>
+					<AbsDimension x="48" y="28"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentInputBox" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="8" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+					<EdgeSize>
+						<AbsValue val="12"/>
+					</EdgeSize>
+					<TileSize>
+						<AbsValue val="12"/>
+					</TileSize>
+					<BackgroundInsets>
+						<AbsInset left="3" right="3" top="3" bottom="3"/>
+					</BackgroundInsets>
+				</Backdrop>
+				<Frames>
+					<EditBox name="CraftTreeFrameQty" letters="5" autoFocus="false">
+						<Size>
+							<AbsDimension x="36" y="18"/>
+						</Size>
+						<Anchors>
+							<Anchor point="CENTER"/>
+						</Anchors>
+						<FontString inherits="ChatFontNormal"/>
+						<Scripts>
+							<OnEscapePressed>
+								this:ClearFocus()
+							</OnEscapePressed>
+							<OnEnterPressed>
+								CraftTree_OnInputEnter()
+							</OnEnterPressed>
+						</Scripts>
+					</EditBox>
+				</Frames>
+				<Scripts>
+					<OnLoad>
+						this:SetBackdropColor(0, 0, 0, 0.9)
+						this:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
+					</OnLoad>
+				</Scripts>
+			</Frame>
 
 			<Button name="$parentGo" inherits="UIPanelButtonTemplate" text="Expand">
 				<Size>
-					<AbsDimension x="80" y="22"/>
+					<AbsDimension x="72" y="24"/>
 				</Size>
 				<Anchors>
-					<Anchor point="LEFT" relativeTo="$parentInput" relativePoint="RIGHT">
+					<Anchor point="LEFT" relativeTo="$parentQtyBox" relativePoint="RIGHT">
 						<Offset>
 							<AbsDimension x="8" y="0"/>
 						</Offset>
@@ -113,88 +205,51 @@
 				</Scripts>
 			</Button>
 
-			<EditBox name="$parentQty" letters="4" autoFocus="false" numeric="true">
-				<Size>
-					<AbsDimension x="40" y="20"/>
-				</Size>
-				<Anchors>
-					<Anchor point="LEFT" relativeTo="$parentGo" relativePoint="RIGHT">
-						<Offset>
-							<AbsDimension x="8" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<Layers>
-					<Layer level="BACKGROUND">
-						<Texture file="Interface\ChatFrame\UI-ChatInputBorder-Left">
-							<Size>
-								<AbsDimension x="40" y="32"/>
-							</Size>
-							<Anchors>
-								<Anchor point="LEFT">
-									<Offset>
-										<AbsDimension x="-5" y="0"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
-							<TexCoords left="0" right="0.15" top="0" bottom="1.0"/>
-						</Texture>
-					</Layer>
-				</Layers>
-				<FontString inherits="ChatFontNormal"/>
-				<Scripts>
-					<OnEscapePressed>
-						this:ClearFocus()
-					</OnEscapePressed>
-					<OnEnterPressed>
-						CraftTree_OnInputEnter()
-					</OnEnterPressed>
-				</Scripts>
-			</EditBox>
-
 			<ScrollFrame name="$parentScroll" inherits="UIPanelScrollFrameTemplate">
 				<Size>
-					<AbsDimension x="460" y="320"/>
+					<AbsDimension x="500" y="340"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="24" y="-70"/>
+							<AbsDimension x="20" y="-112"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
 				<ScrollChild>
-					<Frame name="$parentChild">
+					<EditBox name="CraftTreeOutput" multiLine="true" autoFocus="false" enableMouse="true">
 						<Size>
-							<AbsDimension x="440" y="800"/>
+							<AbsDimension x="478" y="340"/>
 						</Size>
-						<Layers>
-							<Layer level="ARTWORK">
-								<FontString name="CraftTreeOutput" inherits="GameFontHighlightSmall" justifyH="LEFT" justifyV="TOP" nonspacewrap="true">
-									<Size>
-										<AbsDimension x="440" y="800"/>
-									</Size>
-									<Anchors>
-										<Anchor point="TOPLEFT"/>
-									</Anchors>
-								</FontString>
-							</Layer>
-						</Layers>
-					</Frame>
+						<FontString inherits="GameFontHighlightSmall"/>
+						<Scripts>
+							<OnEscapePressed>
+								this:ClearFocus()
+							</OnEscapePressed>
+						</Scripts>
+					</EditBox>
 				</ScrollChild>
 			</ScrollFrame>
 		</Frames>
 		<Scripts>
 			<OnLoad>
 				this:RegisterForDrag("LeftButton")
+				tinsert(UISpecialFrames, "CraftTreeFrame")
 				CraftTreeFrameQty:SetText("1")
 			</OnLoad>
+			<OnShow>
+				if CraftTree_OnShow then CraftTree_OnShow() end
+			</OnShow>
 			<OnDragStart>
 				this:StartMoving()
 			</OnDragStart>
 			<OnDragStop>
 				this:StopMovingOrSizing()
 			</OnDragStop>
+			<OnMouseDown>
+				if CraftTreeFrameInput then CraftTreeFrameInput:ClearFocus() end
+				if CraftTreeOutput then CraftTreeOutput:ClearFocus() end
+			</OnMouseDown>
 		</Scripts>
 	</Frame>
 </Ui>

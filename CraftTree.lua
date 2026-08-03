@@ -19,32 +19,112 @@ local function ItemName(itemId)
 	return "item:" .. tostring(itemId)
 end
 
-local function ParseItemId(text)
+local function StripColors(text)
+	if not text then
+		return ""
+	end
+	text = string.gsub(text, "|c%x%x%x%x%x%x%x%x", "")
+	text = string.gsub(text, "|r", "")
+	text = string.gsub(text, "|H.-|h", "")
+	text = string.gsub(text, "|h", "")
+	return text
+end
+
+local function NormalizeName(text)
+	text = StripColors(text or "")
+	text = string.gsub(text, "^%s+", "")
+	text = string.gsub(text, "%s+$", "")
+	-- [Item Name] from links / chat
+	local _, _, bracketed = string.find(text, "%[(.-)%]")
+	if bracketed and bracketed ~= "" then
+		text = bracketed
+	end
+	-- curly apostrophes -> straight
+	text = string.gsub(text, "’", "'")
+	text = string.gsub(text, "‘", "'")
+	return text
+end
+
+local function FindCraftByName(query)
+	if not CraftTreeDB or not query or query == "" then
+		return nil
+	end
+	local lower = string.lower(query)
+	local exactId, startsId, containsId
+	local itemId, recipes
+	for itemId, recipes in pairs(CraftTreeDB) do
+		local n = recipes[1] and recipes[1].name
+		if n and n ~= "" then
+			local nl = string.lower(string.gsub(n, "’", "'"))
+			if nl == lower then
+				exactId = itemId
+				break
+			elseif not startsId and string.sub(nl, 1, string.len(lower)) == lower then
+				startsId = itemId
+			elseif not containsId and string.find(nl, lower, 1, true) then
+				containsId = itemId
+			end
+		end
+	end
+	return exactId or startsId or containsId
+end
+
+local function SuggestCraftNames(query, limit)
+	limit = limit or 8
+	local out = {}
+	if not CraftTreeDB or not query or string.len(query) < 2 then
+		return out
+	end
+	local lower = string.lower(query)
+	local itemId, recipes
+	for itemId, recipes in pairs(CraftTreeDB) do
+		local n = recipes[1] and recipes[1].name
+		if n and string.find(string.lower(n), lower, 1, true) then
+			table.insert(out, string.format("%s (%d)", n, itemId))
+			if table.getn(out) >= limit then
+				break
+			end
+		end
+	end
+	return out
+end
+
+function CraftTree_ParseItemId(text)
 	if not text then
 		return nil
 	end
 	text = string.gsub(text, "^%s+", "")
 	text = string.gsub(text, "%s+$", "")
+	if text == "" then
+		return nil
+	end
+
+	-- Full item link / any "item:12345" fragment (links can be long)
 	local _, _, linkId = string.find(text, "item:(%d+)")
 	if linkId then
 		return tonumber(linkId)
 	end
+
+	-- Bare number
 	local _, _, bare = string.find(text, "^(%d+)$")
 	if bare then
 		return tonumber(bare)
 	end
-	local lower = string.lower(text)
-	local foundId
-	if CraftTreeDB then
-		for itemId, recipes in pairs(CraftTreeDB) do
-			local n = recipes[1] and recipes[1].name
-			if n and string.find(string.lower(n), lower, 1, true) then
-				foundId = itemId
-				break
-			end
+
+	-- Display name from link leftovers or typed craft name
+	local name = NormalizeName(text)
+	if name ~= "" and name ~= text then
+		local _, _, again = string.find(name, "item:(%d+)")
+		if again then
+			return tonumber(again)
 		end
 	end
-	return foundId
+	return FindCraftByName(name)
+end
+
+-- Back-compat alias
+local function ParseItemId(text)
+	return CraftTree_ParseItemId(text)
 end
 
 ------------------------------------------------------------------------
@@ -197,11 +277,9 @@ local function FormatOwnLine(need, ownedTotal, ownedCurrent, ownedOther, source)
 	end
 	local status
 	if ownedTotal >= need then
-		status = "|cff66ff66OK|r"
-	elseif ownedTotal > 0 then
-		status = "|cffffff00need " .. short .. "|r"
+		status = "OK"
 	else
-		status = "|cffff6666need " .. short .. "|r"
+		status = "NEED " .. short
 	end
 	local detail = string.format("own %d", ownedTotal)
 	if source == "bagshui" or source == "bagshui-data" then
@@ -209,7 +287,7 @@ local function FormatOwnLine(need, ownedTotal, ownedCurrent, ownedOther, source)
 			detail = string.format("own %d (here %d / alts %d)", ownedTotal, ownedCurrent, ownedOther)
 		end
 	end
-	return detail .. " — " .. status
+	return detail .. " [" .. status .. "]"
 end
 
 ------------------------------------------------------------------------
@@ -372,28 +450,89 @@ function CraftTree_BuildReport(itemId, qty)
 	return table.concat(lines, "\n"), node, shopping
 end
 
+local HELP_TEXT = table.concat({
+	"CraftTree — recursive craft materials",
+	"",
+	"How to use:",
+	"  1. Shift-click an item into the Item box (or type a craft name / item ID)",
+	"  2. Set Qty if you want more than 1",
+	"  3. Press Enter or click Expand",
+	"",
+	"Slash commands:",
+	"  /ct                  toggle this window",
+	"  /ct Linen Boots      expand by name",
+	"  /ct 5 [Item Link]    expand quantity 5",
+	"  /ct 2569             expand by item ID",
+	"",
+	"Tips:",
+	"  * lines = base materials (shopping list)",
+	"  + lines = intermediate crafts",
+	"  Ownership uses Bagshui when installed",
+}, "\n")
+
+function CraftTree_SetOutput(text)
+	if not CraftTreeOutput then
+		return
+	end
+	CraftTreeOutput:SetText(text or "")
+	local _, lines = string.gsub(text or "", "\n", "\n")
+	local height = math.max(340, (lines + 6) * 14)
+	CraftTreeOutput:SetHeight(height)
+	if CraftTreeFrameScroll then
+		CraftTreeFrameScroll:SetVerticalScroll(0)
+	end
+end
+
+function CraftTree_OnShow()
+	if CraftTreeOutput and (not CraftTreeOutput:GetText() or CraftTreeOutput:GetText() == "") then
+		CraftTree_SetOutput(HELP_TEXT)
+	end
+	if CraftTreeFrameQty and (not CraftTreeFrameQty:GetText() or CraftTreeFrameQty:GetText() == "") then
+		CraftTreeFrameQty:SetText("1")
+	end
+end
+
 function CraftTree_ShowReport(itemId, qty)
 	local text = CraftTree_BuildReport(itemId, qty)
-	if CraftTreeOutput then
-		CraftTreeOutput:SetText(text)
-		local _, count = string.gsub(text, "\n", "\n")
-		local height = math.max(320, (count + 4) * 12)
-		CraftTreeFrameScrollChild:SetHeight(height)
-		CraftTreeOutput:SetHeight(height)
-	end
+	CraftTree_SetOutput(text)
 	CraftTreeFrame:Show()
 end
 
 function CraftTree_OnInputEnter()
-	local text = CraftTreeFrameInput:GetText()
-	local qty = tonumber(CraftTreeFrameQty:GetText()) or 1
+	local text = CraftTreeFrameInput and CraftTreeFrameInput:GetText() or ""
+	local qty = tonumber(CraftTreeFrameQty and CraftTreeFrameQty:GetText()) or 1
 	local itemId = ParseItemId(text)
 	if not itemId then
-		if CraftTreeOutput then
-			CraftTreeOutput:SetText("Could not parse item. Shift-click an item, paste a link, enter an item ID, or a craft name.")
+		local msg = {
+			"Could not parse that input.",
+			"",
+			"Tried to read: " .. tostring(text),
+			"",
+			"Use one of:",
+			"  - Shift-click an item link into the Item box",
+			"  - A craft name, e.g. Linen Boots",
+			"  - An item ID number",
+		}
+		local name = NormalizeName(text)
+		local suggestions = SuggestCraftNames(name, 8)
+		if table.getn(suggestions) > 0 then
+			table.insert(msg, "")
+			table.insert(msg, "Similar crafts:")
+			local i
+			for i = 1, table.getn(suggestions) do
+				table.insert(msg, "  - " .. suggestions[i])
+			end
 		end
+		CraftTree_SetOutput(table.concat(msg, "\n"))
 		CraftTreeFrame:Show()
 		return
+	end
+	if CraftTreeFrameInput then
+		local shown = GetItemInfo(itemId)
+		if not shown then
+			shown = ItemName(itemId)
+		end
+		CraftTreeFrameInput:SetText(shown .. " (" .. tostring(itemId) .. ")")
 	end
 	CraftTree_ShowReport(itemId, qty)
 end
@@ -403,15 +542,22 @@ function CraftTree_Toggle()
 		CraftTreeFrame:Hide()
 	else
 		CraftTreeFrame:Show()
-		CraftTreeFrameInput:SetFocus()
+		if CraftTreeFrameInput then
+			CraftTreeFrameInput:SetFocus()
+		end
 	end
 end
 
 local Original_ChatEdit_InsertLink = ChatEdit_InsertLink
 function ChatEdit_InsertLink(link)
-	if CraftTreeFrame and CraftTreeFrame:IsShown() and CraftTreeFrameInput and CraftTreeFrameInput:HasFocus() then
-		CraftTreeFrameInput:SetText(link)
-		return true
+	if CraftTreeFrame and CraftTreeFrame:IsShown() and link then
+		local chatOpen = ChatFrameEditBox and ChatFrameEditBox:IsVisible()
+		if (CraftTreeFrameInput and CraftTreeFrameInput:HasFocus()) or not chatOpen then
+			CraftTreeFrameInput:SetText(link)
+			CraftTreeFrameInput:SetFocus()
+			CraftTree_OnInputEnter()
+			return true
+		end
 	end
 	if Original_ChatEdit_InsertLink then
 		return Original_ChatEdit_InsertLink(link)
@@ -437,8 +583,11 @@ SlashCmdList["CRAFTTREE"] = function(msg)
 	end
 	local itemId = ParseItemId(rest)
 	if not itemId then
-		DEFAULT_CHAT_FRAME:AddMessage("|cffff5533CraftTree:|r could not parse item from: " .. msg)
-		CraftTree_Toggle()
+		CraftTreeFrame:Show()
+		if CraftTreeFrameInput then
+			CraftTreeFrameInput:SetText(rest)
+		end
+		CraftTree_OnInputEnter()
 		return
 	end
 	if CraftTreeFrameInput then
@@ -476,6 +625,5 @@ f:SetScript("OnEvent", function()
 		DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96CraftTree|r loaded (" .. n .. " crafts, Bagshui: " .. bagshui .. "). /crafttree or /ct")
 		return
 	end
-	-- Bagshui catalog finishes a few seconds after login; bank open/close also changes local counts.
 	RefreshOpenReport()
 end)
