@@ -397,6 +397,9 @@ local function StatusText(n)
 	if owned and owned > 0 then
 		table.insert(bits, "own " .. owned)
 	end
+	if n.transmuteBase then
+		table.insert(bits, "farm/transmute")
+	end
 	if short <= 0 then
 		table.insert(bits, "OK")
 	else

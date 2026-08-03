@@ -328,6 +328,76 @@ end
 -- Resolver
 ------------------------------------------------------------------------
 
+--[[
+  Alchemy transmutes (Vanilla / Turtle) — from wowhead / warcraft.wiki:
+
+  LOOP (never expand — farmed base mats):
+    Essence of Earth / Fire / Water / Air
+    Living Essence / Essence of Undeath
+
+  ONE-WAY (still expand):
+    Iron→Gold, Mithril→Truesilver, Thorium+Arcane Crystal→Arcanite
+    Core of Earth→3× Elemental Earth, Heart of Fire→3× Elemental Fire,
+    Globe of Water→3× Elemental Water
+
+  Gold/Truesilver also have Smelt recipes — we prefer Smelt over Transmute.
+  Arcanite Bar has NO smithing recipe; only alchemy transmute (BS consumes it).
+]]
+local TRANSMUTE_LOOP = {
+	[7076] = true, -- Essence of Earth
+	[7078] = true, -- Essence of Fire
+	[7080] = true, -- Essence of Water
+	[7082] = true, -- Essence of Air
+	[12803] = true, -- Living Essence
+	[12808] = true, -- Essence of Undeath
+}
+
+local function IsTransmuteRecipe(recipe)
+	if not recipe or not recipe.name then
+		return false
+	end
+	return string.sub(recipe.name, 1, 10) == "Transmute:"
+end
+
+-- Prefer smelt/craft over transmute. Nil = treat as base mat.
+local function SelectRecipe(recipes, itemId, stack)
+	if not recipes or table.getn(recipes) == 0 then
+		return nil
+	end
+
+	if TRANSMUTE_LOOP[itemId] then
+		return nil
+	end
+
+	local i, recipe
+	for i = 1, table.getn(recipes) do
+		recipe = recipes[i]
+		if recipe.reagents and table.getn(recipe.reagents) > 0 and not IsTransmuteRecipe(recipe) then
+			return recipe
+		end
+	end
+
+	for i = 1, table.getn(recipes) do
+		recipe = recipes[i]
+		if recipe.reagents and table.getn(recipe.reagents) > 0 then
+			local ok = true
+			local j
+			for j = 1, table.getn(recipe.reagents) do
+				local rid = recipe.reagents[j][1]
+				if stack and stack[rid] then
+					ok = false
+					break
+				end
+			end
+			if ok then
+				return recipe
+			end
+		end
+	end
+
+	return nil
+end
+
 function CraftTree_Resolve(itemId, need, shopping, depth, stack)
 	need = need or 1
 	shopping = shopping or {}
@@ -372,21 +442,25 @@ function CraftTree_Resolve(itemId, need, shopping, depth, stack)
 	end
 
 	if stack[itemId] then
+		-- Generic loop break (any craft cycle, not only essences)
 		node.leaf = true
 		node.blocked = true
+		node.loop = true
 		shopping[itemId] = (shopping[itemId] or 0) + need
 		return node, shopping
 	end
 
 	local recipes = CraftTreeDB and CraftTreeDB[itemId]
-	if not recipes or not recipes[1] or not recipes[1].reagents then
+	local recipe = SelectRecipe(recipes, itemId, stack)
+	if not recipe then
 		node.leaf = true
-		-- Base mats: keep full branch need in shopping; UI subtracts owned for "need X"
+		if TRANSMUTE_LOOP[itemId] then
+			node.transmuteBase = true
+		end
 		shopping[itemId] = (shopping[itemId] or 0) + need
 		return node, shopping
 	end
 
-	local recipe = recipes[1]
 	local yield = recipe.yield or 1
 	if yield < 1 then
 		yield = 1
@@ -399,7 +473,10 @@ function CraftTree_Resolve(itemId, need, shopping, depth, stack)
 	node.yield = yield
 	node.name = recipe.name ~= "" and recipe.name or node.name
 	node.spell = recipe.spell
-	if table.getn(recipes) > 1 then
+	if IsTransmuteRecipe(recipe) then
+		node.transmute = true
+	end
+	if recipes and table.getn(recipes) > 1 then
 		node.altRecipes = table.getn(recipes)
 	end
 
