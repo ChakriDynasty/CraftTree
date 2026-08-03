@@ -81,11 +81,11 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentShopTitle" inherits="GameFontNormal" text="Base materials">
+				<FontString name="$parentShopTitle" inherits="GameFontNormal" text="Base materials (shopping)">
 					<Anchors>
 						<Anchor point="BOTTOMLEFT">
 							<Offset>
-								<AbsDimension x="24" y="128"/>
+								<AbsDimension x="24" y="118"/>
 							</Offset>
 						</Anchor>
 					</Anchors>
@@ -283,10 +283,10 @@
 				</Scripts>
 			</Frame>
 
-			<!-- Material tree -->
+			<!-- Material tree (click crafts to expand/collapse mats) -->
 			<ScrollFrame name="CraftTreeTreeScroll" inherits="UIPanelScrollFrameTemplate">
 				<Size>
-					<AbsDimension x="540" y="250"/>
+					<AbsDimension x="540" y="300"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="CraftTreeGoal" relativePoint="BOTTOMLEFT">
@@ -298,74 +298,31 @@
 				<ScrollChild>
 					<Frame name="CraftTreeTreeChild">
 						<Size>
-							<AbsDimension x="510" y="250"/>
+							<AbsDimension x="510" y="300"/>
 						</Size>
 					</Frame>
 				</ScrollChild>
 			</ScrollFrame>
 
-			<!-- Base mats shopping strip (horizontal scroll) -->
-			<Button name="CraftTreeShopLeft" inherits="UIPanelButtonTemplate" text="&lt;">
+			<!-- Base mats shopping list -->
+			<ScrollFrame name="CraftTreeShopScroll" inherits="UIPanelScrollFrameTemplate">
 				<Size>
-					<AbsDimension x="24" y="72"/>
+					<AbsDimension x="540" y="90"/>
 				</Size>
 				<Anchors>
 					<Anchor point="BOTTOMLEFT">
 						<Offset>
-							<AbsDimension x="18" y="28"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<Scripts>
-					<OnClick>
-						if CraftTree_ShopScrollBy then CraftTree_ShopScrollBy(-1) end
-					</OnClick>
-				</Scripts>
-			</Button>
-			<Button name="CraftTreeShopRight" inherits="UIPanelButtonTemplate" text="&gt;">
-				<Size>
-					<AbsDimension x="24" y="72"/>
-				</Size>
-				<Anchors>
-					<Anchor point="BOTTOMRIGHT">
-						<Offset>
-							<AbsDimension x="-18" y="28"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<Scripts>
-					<OnClick>
-						if CraftTree_ShopScrollBy then CraftTree_ShopScrollBy(1) end
-					</OnClick>
-				</Scripts>
-			</Button>
-			<ScrollFrame name="CraftTreeShopScroll">
-				<Size>
-					<AbsDimension x="500" y="100"/>
-				</Size>
-				<Anchors>
-					<Anchor point="BOTTOMLEFT">
-						<Offset>
-							<AbsDimension x="46" y="20"/>
+							<AbsDimension x="20" y="20"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
 				<ScrollChild>
 					<Frame name="CraftTreeShopChild">
 						<Size>
-							<AbsDimension x="500" y="100"/>
+							<AbsDimension x="510" y="90"/>
 						</Size>
 					</Frame>
 				</ScrollChild>
-				<Scripts>
-					<OnLoad>
-						this:EnableMouseWheel(1)
-						this:EnableMouse(1)
-					</OnLoad>
-					<OnMouseWheel>
-						if CraftTree_ShopScrollBy then CraftTree_ShopScrollBy(-(arg1 or 0)) end
-					</OnMouseWheel>
-				</Scripts>
 			</ScrollFrame>
 		</Frames>
 		<Scripts>
@@ -404,20 +361,44 @@
 		</Anchors>
 		<Frames>
 			<Button name="CraftTreeMinimapButton">
-				<HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight"/>
 				<Size>
 					<AbsDimension x="33" y="33"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT"/>
 				</Anchors>
-				<NormalTexture file="Interface\AddOns\CraftTree\Images\CraftTreeMinimap"/>
-				<PushedTexture file="Interface\AddOns\CraftTree\Images\CraftTreeMinimap"/>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture name="CraftTreeMinimapButtonIcon" file="Interface\AddOns\CraftTree\Images\CraftTreeMinimap">
+							<Size>
+								<AbsDimension x="21" y="21"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT">
+									<Offset>
+										<AbsDimension x="6" y="-6"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY">
+						<Texture file="Interface\Minimap\MiniMap-TrackingBorder">
+							<Size>
+								<AbsDimension x="52" y="52"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
 				<HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight"/>
 				<Scripts>
 					<OnLoad>
 						this:RegisterForDrag("RightButton")
 						this.dragging = false
+						if CraftTreeMinimapButton_SetIcon then CraftTreeMinimapButton_SetIcon() end
 					</OnLoad>
 					<OnDragStart>
 						this.dragging = true

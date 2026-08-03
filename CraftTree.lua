@@ -578,6 +578,16 @@ local function EnsureMinimapDB()
 	return m
 end
 
+function CraftTreeMinimapButton_SetIcon()
+	local tex = CraftTreeMinimapButtonIcon
+	if not tex then
+		return
+	end
+	-- Vanilla resolves extension-less paths to .blp first. We ship a
+	-- palettized BLP2 (same format as Interface\Cursor\*.blp).
+	tex:SetTexture("Interface\\AddOns\\CraftTree\\Images\\CraftTreeMinimap")
+end
+
 function CraftTreeMinimapButton_UpdatePosition()
 	local m = EnsureMinimapDB()
 	if not CraftTreeMinimapButtonFrame then
@@ -597,6 +607,7 @@ function CraftTreeMinimapButton_Init()
 	if not CraftTreeMinimapButtonFrame then
 		return
 	end
+	CraftTreeMinimapButton_SetIcon()
 	if m.show then
 		CraftTreeMinimapButtonFrame:Show()
 		CraftTreeMinimapButton_UpdatePosition()
