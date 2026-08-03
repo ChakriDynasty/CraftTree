@@ -63,7 +63,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentItemLabel" inherits="GameFontNormalSmall" text="Item">
+				<FontString name="$parentItemLabel" inherits="GameFontNormalSmall" text="Item / Enchant">
 					<Anchors>
 						<Anchor point="TOPLEFT">
 							<Offset>

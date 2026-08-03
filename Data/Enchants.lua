@@ -1,5 +1,6 @@
 -- Auto-generated from refaim/LibCrafts-1.0 Professions/Enchanting.lua
 -- (+ AtlasLoot enchants names/icons). Regenerate with tools/extract_enchants.py
+-- Enchant data (from LibCrafts; also Data/Enchants.lua)
 CraftTreeEnchantDB = {
   [44] = {
     {spell=44, yield=1, name="Enchant Bracer - Agility", icon="Interface\\Icons\\Spell_Holy_GreaterHeal", reagents={{7067,1}, {11134,1}}},
@@ -231,9 +232,6 @@ CraftTreeEnchantDB = {
   },
   [13905] = {
     {spell=13905, yield=1, name="Enchant Shield - Greater Spirit", icon="Interface\\Icons\\Spell_Holy_GreaterHeal", reagents={{11175,1}, {11176,2}}},
-  },
-  [13915] = {
-    {spell=13915, yield=1, name="Enchant Weapon - Demonslaying", icon="Interface\\Icons\\Spell_Holy_GreaterHeal", reagents={{9224,1}, {11176,2}, {11177,1}}},
   },
   [13915] = {
     {spell=13915, yield=1, name="Enchant Weapon - Demonslaying", icon="Interface\\Icons\\Spell_Holy_GreaterHeal", reagents={{9224,1}, {11176,2}, {11177,1}}},
@@ -486,7 +484,6 @@ CraftTreeEnchantFormulas = {
   [11206] = 13882,
   [11207] = 13898,
   [11208] = 13915,
-  [11208] = 13915,
   [11223] = 13931,
   [11224] = 13933,
   [11225] = 13945,
@@ -563,4 +560,4 @@ CraftTreeEnchantFormulas = {
   [61739] = 57148,
   [61733] = 57518,
 }
--- enchants: 150, formulas: 107, item-crafts: 22
+-- enchants: 149, formulas: 106, item-crafts: 22

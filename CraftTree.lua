@@ -82,7 +82,7 @@ local function FindEnchantByName(query)
 		return nil
 	end
 	local lower = string.lower(query)
-	local exactId, startsId, containsId
+	local exactId, suffixId, startsId, containsId
 	local spellId, recipes
 	for spellId, recipes in pairs(CraftTreeEnchantDB) do
 		local n = recipes[1] and recipes[1].name
@@ -91,6 +91,11 @@ local function FindEnchantByName(query)
 			if nl == lower then
 				exactId = spellId
 				break
+			end
+			-- "Crusader" matches "Enchant Weapon - Crusader"
+			local _, _, suffix = string.find(nl, " %- (.+)$")
+			if suffix and suffix == lower then
+				suffixId = spellId
 			elseif not startsId and string.sub(nl, 1, string.len(lower)) == lower then
 				startsId = spellId
 			elseif not containsId and string.find(nl, lower, 1, true) then
@@ -98,7 +103,17 @@ local function FindEnchantByName(query)
 			end
 		end
 	end
-	return exactId or startsId or containsId
+	return exactId or suffixId or startsId or containsId
+end
+
+local function EnchantNameVariants(name)
+	-- Return full name plus "Crusader" suffix for suggestion matching
+	local out = { name }
+	local _, _, suffix = string.find(name, " %- (.+)$")
+	if suffix and suffix ~= "" then
+		table.insert(out, suffix)
+	end
+	return out
 end
 
 local function SuggestCraftNames(query, limit)
@@ -119,8 +134,8 @@ local function SuggestCraftNames(query, limit)
 	local lower = string.lower(string.gsub(query, "’", "'"))
 	local starts, contains = {}, {}
 
-	local function consider(id, name, kind)
-		local nl = string.lower(string.gsub(name, "’", "'"))
+	local function consider(id, name, kind, matchName)
+		local nl = string.lower(string.gsub(matchName or name, "’", "'"))
 		local entry = { id = id, name = name, kind = kind }
 		if string.sub(nl, 1, string.len(lower)) == lower then
 			table.insert(starts, entry)
@@ -129,43 +144,60 @@ local function SuggestCraftNames(query, limit)
 		end
 	end
 
-	if CraftTreeDB then
-		local itemId, recipes
-		for itemId, recipes in pairs(CraftTreeDB) do
-			local n = recipes[1] and recipes[1].name
-			if n and n ~= "" then
-				consider(itemId, n, "item")
-			end
-		end
-	end
+	-- Prefer listing enchants when the query looks like one / short enchant nicknames
 	if CraftTreeEnchantDB then
 		local spellId, recipes
 		for spellId, recipes in pairs(CraftTreeEnchantDB) do
 			local n = recipes[1] and recipes[1].name
 			if n and n ~= "" then
-				consider(spellId, n, "enchant")
+				local variants = EnchantNameVariants(n)
+				local v
+				for v = 1, table.getn(variants) do
+					consider(spellId, n, "enchant", variants[v])
+				end
+			end
+		end
+	end
+	if CraftTreeDB then
+		local itemId, recipes
+		for itemId, recipes in pairs(CraftTreeDB) do
+			local n = recipes[1] and recipes[1].name
+			if n and n ~= "" then
+				consider(itemId, n, "item", n)
 			end
 		end
 	end
 
 	local function byName(a, b)
+		-- Enchant matches first when names tie-break; otherwise alpha
+		if a.kind ~= b.kind and (a.kind == "enchant" or b.kind == "enchant") then
+			return a.kind == "enchant"
+		end
 		return a.name < b.name
 	end
 	table.sort(starts, byName)
 	table.sort(contains, byName)
-	local i
-	for i = 1, table.getn(starts) do
-		table.insert(out, starts[i])
-		if table.getn(out) >= limit then
-			return out
+
+	local seen = {}
+	local function add(list)
+		local i
+		for i = 1, table.getn(list) do
+			local e = list[i]
+			local key = tostring(e.kind) .. ":" .. tostring(e.id)
+			if not seen[key] then
+				seen[key] = true
+				table.insert(out, e)
+				if table.getn(out) >= limit then
+					return true
+				end
+			end
 		end
+		return false
 	end
-	for i = 1, table.getn(contains) do
-		table.insert(out, contains[i])
-		if table.getn(out) >= limit then
-			return out
-		end
+	if add(starts) then
+		return out
 	end
+	add(contains)
 	return out
 end
 
@@ -229,9 +261,9 @@ function CraftTree_ParseTarget(text)
 		end
 	end
 
-	-- Prefer exact item craft name, then exact enchant, then fuzzy item, then fuzzy enchant
+	-- Prefer exact item craft name, then exact/suffix enchant, then fuzzy item, then fuzzy enchant
 	local lower = string.lower(name)
-	local itemExact, enchExact
+	local itemExact
 	if CraftTreeDB then
 		local itemId, recipes
 		for itemId, recipes in pairs(CraftTreeDB) do
@@ -245,19 +277,30 @@ function CraftTree_ParseTarget(text)
 	if itemExact then
 		return "item", itemExact
 	end
-	enchExact = FindEnchantByName(name)
-	if enchExact and CraftTreeEnchantDB and CraftTreeEnchantDB[enchExact]
-		and CraftTreeEnchantDB[enchExact][1]
-		and string.lower(string.gsub(CraftTreeEnchantDB[enchExact][1].name, "’", "'")) == lower
-	then
-		return "enchant", enchExact
+
+	-- Exact or "Crusader" → "Enchant Weapon - Crusader" style match
+	local enchId = FindEnchantByName(name)
+	if enchId and CraftTreeEnchantDB and CraftTreeEnchantDB[enchId] and CraftTreeEnchantDB[enchId][1] then
+		local en = string.lower(string.gsub(CraftTreeEnchantDB[enchId][1].name, "’", "'"))
+		if en == lower then
+			return "enchant", enchId
+		end
+		local _, _, suffix = string.find(en, " %- (.+)$")
+		if suffix and suffix == lower then
+			return "enchant", enchId
+		end
+		-- Query looks like an enchant name — prefer enchant over random item contains-match
+		if string.find(lower, "enchant", 1, true) then
+			return "enchant", enchId
+		end
 	end
+
 	local itemFuzzy = FindCraftByName(name)
 	if itemFuzzy then
 		return "item", itemFuzzy
 	end
-	if enchExact then
-		return "enchant", enchExact
+	if enchId then
+		return "enchant", enchId
 	end
 	return nil, nil
 end
@@ -1109,6 +1152,9 @@ f:SetScript("OnEvent", function()
 			end
 			local bagshui = (Bagshui and "yes") or (BagshuiData and "data-only") or "no"
 			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96CraftTree|r loaded (" .. n .. " crafts, " .. e .. " enchants, Bagshui: " .. bagshui .. "). /crafttree or /ct")
+			if e == 0 then
+				DEFAULT_CHAT_FRAME:AddMessage("|cffff6666CraftTree:|r enchant data missing — copy Data/Enchants.lua (or update Data/Recipes.lua)")
+			end
 			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96CraftTree:|r with window open, shift-click items/enchants from bags/chat/AtlasLoot (Alt+Shift = normal)")
 			InstallClickHooks()
 		elseif arg1 == "Bagshui" or arg1 == "AtlasLoot" then
