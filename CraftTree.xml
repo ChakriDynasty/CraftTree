@@ -87,6 +87,18 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
+				<FontString name="$parentCredit" inherits="GameFontDisableSmall" text="Made by the Holy Gnoman Empire by the grace of our emperor Gnormanbates" justifyH="RIGHT">
+					<Size>
+						<AbsDimension x="280" y="36"/>
+					</Size>
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT">
+							<Offset>
+								<AbsDimension x="-28" y="128"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
 			</Layer>
 		</Layers>
 		<Frames>
