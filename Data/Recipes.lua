@@ -1,4 +1,4 @@
--- Auto-generated from Otari98/AtlasLoot Database/Spells.lua craftspells
+-- Auto-generated from the installed Atlas-CFM Turtle craft data
 -- Do not edit by hand; regenerate with tools/extract_atlasloot.py
 CraftTreeDB = {
   [65] = {
@@ -62,7 +62,7 @@ CraftTreeDB = {
     {spell=3447, yield=1, name="Healing Potion", reagents={{2453,1}, {2450,1}, {3372,1}}},
   },
   [1017] = {
-    {spell=2549, yield=3, name="Seasoned Wolf Kabob", reagents={{1015,2}, {2665,1}}},
+    {spell=2549, yield=1, name="Seasoned Wolf Kabob", reagents={{1015,2}, {2665,1}}},
   },
   [1082] = {
     {spell=2547, yield=1, name="Redridge Goulash", reagents={{1081,1}, {1080,1}}},
@@ -89,7 +89,7 @@ CraftTreeDB = {
     {spell=2158, yield=1, name="Fine Leather Boots", reagents={{2318,7}, {2320,2}}},
   },
   [2308] = {
-    {spell=2159, yield=1, name="Fine Leather Cloak", reagents={{2318,10}, {2320,2}}},
+    {spell=2159, yield=1, name="Fine Leather Cloak", reagents={{2318,10}, {2321,2}}},
   },
   [2309] = {
     {spell=2161, yield=1, name="Embossed Leather Boots", reagents={{2318,8}, {2320,5}}},
@@ -152,7 +152,7 @@ CraftTreeDB = {
     {spell=2387, yield=1, name="Linen Cloak", reagents={{2996,1}, {2320,1}}},
   },
   [2572] = {
-    {spell=2389, yield=1, name="Red Linen Robe", reagents={{2996,2}, {2320,2}, {2604,2}}},
+    {spell=2389, yield=1, name="Red Linen Robe", reagents={{2996,3}, {2320,2}, {2604,2}}},
   },
   [2575] = {
     {spell=2392, yield=1, name="Red Linen Shirt", reagents={{2996,2}, {2320,1}, {2604,1}}},
@@ -179,7 +179,7 @@ CraftTreeDB = {
     {spell=2399, yield=1, name="Green Woolen Vest", reagents={{2997,2}, {2321,2}, {2605,1}}},
   },
   [2583] = {
-    {spell=2401, yield=1, name="Woolen Boots", reagents={{2997,4}, {2321,2}, {2318,1}}},
+    {spell=2401, yield=1, name="Woolen Boots", reagents={{2997,4}, {2321,2}, {2318,2}}},
   },
   [2584] = {
     {spell=2402, yield=1, name="Woolen Cape", reagents={{2997,1}, {2321,1}}},
@@ -212,7 +212,7 @@ CraftTreeDB = {
     {spell=2541, yield=1, name="Coyote Steak", reagents={{2673,1}}},
   },
   [2685] = {
-    {spell=2548, yield=1, name="Succulent Pork Ribs", reagents={{2677,1}, {2692,1}}},
+    {spell=2548, yield=1, name="Succulent Pork Ribs", reagents={{2677,2}, {2692,1}}},
   },
   [2687] = {
     {spell=2546, yield=1, name="Dry Pork Ribs", reagents={{2677,1}, {2678,1}}},
@@ -224,7 +224,7 @@ CraftTreeDB = {
     {spell=2657, yield=1, name="Smelt Copper", reagents={{2770,1}}},
   },
   [2841] = {
-    {spell=2659, yield=2, name="Smelt Bronze", reagents={{2840,1}, {3576,1}}},
+    {spell=2659, yield=1, name="Smelt Bronze", reagents={{2840,1}, {3576,1}}},
   },
   [2842] = {
     {spell=2658, yield=1, name="Smelt Silver", reagents={{2775,1}}},
@@ -308,7 +308,7 @@ CraftTreeDB = {
     {spell=2964, yield=1, name="Bolt of Woolen Cloth", reagents={{2592,3}}},
   },
   [3220] = {
-    {spell=3371, yield=2, name="Blood Sausage", reagents={{3173,1}, {3172,1}, {3174,1}}},
+    {spell=3371, yield=1, name="Blood Sausage", reagents={{3173,1}, {3172,1}, {3174,1}}},
   },
   [3239] = {
     {spell=3115, yield=1, name="Rough Weightstone", reagents={{2835,1}, {2589,1}}},
@@ -600,7 +600,7 @@ CraftTreeDB = {
     {spell=3765, yield=1, name="Dark Leather Gloves", reagents={{2312,1}, {4233,1}, {2321,1}, {4340,1}}},
   },
   [4249] = {
-    {spell=3766, yield=1, name="Dark Leather Belt", reagents={{2312,1}, {4233,1}, {2321,2}, {4340,1}}},
+    {spell=3766, yield=1, name="Dark Leather Belt", reagents={{4246,1}, {4233,1}, {2321,2}, {4340,1}}},
   },
   [4250] = {
     {spell=3767, yield=1, name="Hillman's Belt", reagents={{2319,8}, {3383,1}, {2321,2}}},
@@ -621,7 +621,7 @@ CraftTreeDB = {
     {spell=3772, yield=1, name="Green Leather Armor", reagents={{4234,9}, {2605,2}, {2321,4}}},
   },
   [4256] = {
-    {spell=3773, yield=1, name="Guardian Armor", reagents={{4236,2}, {4234,12}, {3824,1}, {2321,1}}},
+    {spell=3773, yield=1, name="Guardian Armor", reagents={{4236,2}, {4234,12}, {3824,1}, {2321,2}}},
   },
   [4257] = {
     {spell=3774, yield=1, name="Green Leather Belt", reagents={{4236,1}, {4234,5}, {2321,1}, {2605,1}, {7071,1}}},
@@ -669,7 +669,7 @@ CraftTreeDB = {
     {spell=3845, yield=1, name="Soft-soled Linen Boots", reagents={{2996,5}, {2318,2}, {2321,1}}},
   },
   [4313] = {
-    {spell=3847, yield=1, name="Red Woolen Boots", reagents={{2997,3}, {2318,2}, {2321,1}, {2604,1}}},
+    {spell=3847, yield=1, name="Red Woolen Boots", reagents={{2997,4}, {2318,2}, {2321,1}, {2604,2}}},
   },
   [4314] = {
     {spell=3848, yield=1, name="Double-stitched Woolen Shoulders", reagents={{2997,3}, {2321,2}}},
@@ -753,13 +753,13 @@ CraftTreeDB = {
     {spell=3918, yield=1, name="Rough Blasting Powder", reagents={{2835,1}}},
   },
   [4358] = {
-    {spell=3919, yield=2, name="Rough Dynamite", reagents={{4357,2}, {2589,1}}},
+    {spell=3919, yield=1, name="Rough Dynamite", reagents={{4357,2}, {2589,1}}},
   },
   [4359] = {
     {spell=3922, yield=1, name="Handful of Copper Bolts", reagents={{2840,1}}},
   },
   [4360] = {
-    {spell=3923, yield=2, name="Rough Copper Bomb", reagents={{2840,1}, {4359,1}, {4357,2}, {2589,1}}},
+    {spell=3923, yield=1, name="Rough Copper Bomb", reagents={{2840,1}, {4359,1}, {4357,2}, {2589,1}}},
   },
   [4361] = {
     {spell=3924, yield=1, name="Copper Tube", reagents={{2840,2}, {2880,1}}},
@@ -789,7 +789,7 @@ CraftTreeDB = {
     {spell=3936, yield=1, name="Deadly Blunderbuss", reagents={{4361,2}, {4359,4}, {4399,1}, {2319,2}}},
   },
   [4370] = {
-    {spell=3937, yield=2, name="Large Copper Bomb", reagents={{2840,3}, {4364,4}, {4404,1}}},
+    {spell=3937, yield=1, name="Large Copper Bomb", reagents={{2840,3}, {4364,4}, {4404,1}}},
   },
   [4371] = {
     {spell=3938, yield=1, name="Bronze Tube", reagents={{2841,2}, {2880,1}}},
@@ -819,7 +819,7 @@ CraftTreeDB = {
     {spell=3949, yield=1, name="Silver-plated Shotgun", reagents={{4371,2}, {4375,2}, {4400,1}, {2842,3}}},
   },
   [4380] = {
-    {spell=3950, yield=2, name="Big Bronze Bomb", reagents={{4377,2}, {2841,3}, {4404,1}}},
+    {spell=3950, yield=1, name="Big Bronze Bomb", reagents={{4377,2}, {2841,3}, {4404,1}}},
   },
   [4381] = {
     {spell=3952, yield=1, name="Minor Recombobulator", reagents={{4371,1}, {4375,2}, {2319,2}, {1206,1}}},
@@ -849,7 +849,7 @@ CraftTreeDB = {
     {spell=3961, yield=1, name="Gyrochronatom", reagents={{3575,1}, {10558,1}}},
   },
   [4390] = {
-    {spell=3962, yield=2, name="Iron Grenade", reagents={{3575,1}, {4377,1}, {4306,1}}},
+    {spell=3962, yield=1, name="Iron Grenade", reagents={{3575,1}, {4377,1}, {4306,1}}},
   },
   [4391] = {
     {spell=3963, yield=1, name="Compact Harvest Reaper Kit", reagents={{4387,2}, {4382,1}, {4389,2}, {4234,4}}},
@@ -861,7 +861,7 @@ CraftTreeDB = {
     {spell=3966, yield=1, name="Craftsman's Monocle", reagents={{4234,6}, {3864,2}}},
   },
   [4394] = {
-    {spell=3967, yield=2, name="Big Iron Bomb", reagents={{3575,3}, {4377,3}, {4404,1}}},
+    {spell=3967, yield=1, name="Big Iron Bomb", reagents={{3575,3}, {4377,3}, {4404,1}}},
   },
   [4395] = {
     {spell=3968, yield=1, name="Goblin Land Mine", reagents={{4377,3}, {3575,2}, {4389,1}}},
@@ -882,7 +882,7 @@ CraftTreeDB = {
     {spell=3960, yield=1, name="Portable Bronze Mortar", reagents={{4371,4}, {4387,1}, {4377,4}, {2319,4}}},
   },
   [4404] = {
-    {spell=3973, yield=5, name="Silver Contact", reagents={{2842,1}}},
+    {spell=3973, yield=1, name="Silver Contact", reagents={{2842,1}}},
   },
   [4405] = {
     {spell=3977, yield=1, name="Crude Scope", reagents={{4361,1}, {774,1}, {4359,1}}},
@@ -936,22 +936,22 @@ CraftTreeDB = {
     {spell=6413, yield=1, name="Scorpid Surprise", reagents={{5466,1}}},
   },
   [5474] = {
-    {spell=6414, yield=2, name="Roasted Kodo Meat", reagents={{5467,1}, {2678,1}}},
+    {spell=6414, yield=1, name="Roasted Kodo Meat", reagents={{5467,1}, {2678,1}}},
   },
   [5476] = {
-    {spell=6415, yield=2, name="Fillet of Frenzy", reagents={{5468,1}, {2678,1}}},
+    {spell=6415, yield=1, name="Fillet of Frenzy", reagents={{5468,1}, {2678,1}}},
   },
   [5477] = {
-    {spell=6416, yield=2, name="Strider Stew", reagents={{5469,1}, {4536,1}}},
+    {spell=6416, yield=1, name="Strider Stew", reagents={{5469,1}, {4536,1}}},
   },
   [5478] = {
-    {spell=6417, yield=2, name="Dig Rat Stew", reagents={{5051,1}}},
+    {spell=6417, yield=1, name="Dig Rat Stew", reagents={{5051,1}}},
   },
   [5479] = {
-    {spell=6418, yield=2, name="Crispy Lizard Tail", reagents={{5470,1}, {2692,1}}},
+    {spell=6418, yield=1, name="Crispy Lizard Tail", reagents={{5470,1}, {2692,1}}},
   },
   [5480] = {
-    {spell=6419, yield=2, name="Lean Venison", reagents={{5471,1}, {2678,4}}},
+    {spell=6419, yield=1, name="Lean Venison", reagents={{5471,1}, {2678,4}}},
   },
   [5507] = {
     {spell=6458, yield=1, name="Ornate Spyglass", reagents={{4371,2}, {4375,2}, {4363,1}, {1206,1}}},
@@ -1092,6 +1092,9 @@ CraftTreeDB = {
   [6214] = {
     {spell=7408, yield=1, name="Heavy Copper Maul", reagents={{2840,12}, {2880,2}, {2318,2}}},
   },
+  [6218] = {
+    {spell=7421, yield=1, name="Runed Copper Rod", reagents={{6217,1}, {10940,1}, {10938,1}}},
+  },
   [6219] = {
     {spell=7430, yield=1, name="Arclight Spanner", reagents={{2840,6}}},
   },
@@ -1110,9 +1113,6 @@ CraftTreeDB = {
   [6242] = {
     {spell=7633, yield=1, name="Blue Linen Robe", reagents={{2996,4}, {2320,2}, {6260,2}}},
   },
-  [6243] = {
-    {spell=7636, yield=1, name="Green Woolen Robe", reagents={{2997,3}, {2321,2}, {2605,1}}},
-  },
   [6263] = {
     {spell=7639, yield=1, name="Blue Overalls", reagents={{2997,4}, {2321,2}, {6260,2}}},
   },
@@ -1127,6 +1127,9 @@ CraftTreeDB = {
   },
   [6338] = {
     {spell=7818, yield=1, name="Silver Rod", reagents={{2842,1}, {3470,2}}},
+  },
+  [6339] = {
+    {spell=7795, yield=1, name="Runed Silver Rod", reagents={{6338,1}, {10940,6}, {10939,3}, {1210,1}}},
   },
   [6350] = {
     {spell=7817, yield=1, name="Rough Bronze Boots", reagents={{2841,6}, {3470,6}}},
@@ -1156,10 +1159,10 @@ CraftTreeDB = {
     {spell=7929, yield=1, name="Heavy Silk Bandage", reagents={{4306,2}}},
   },
   [6452] = {
-    {spell=7934, yield=3, name="Anti-Venom", reagents={{1475,1}}},
+    {spell=7934, yield=1, name="Anti-Venom", reagents={{1475,1}}},
   },
   [6453] = {
-    {spell=7935, yield=3, name="Strong Anti-Venom", reagents={{1288,1}}},
+    {spell=7935, yield=1, name="Strong Anti-Venom", reagents={{1288,1}}},
   },
   [6466] = {
     {spell=7953, yield=1, name="Deviate Scale Cloak", reagents={{6470,8}, {4231,1}, {2321,1}}},
@@ -1171,7 +1174,7 @@ CraftTreeDB = {
     {spell=7955, yield=1, name="Deviate Scale Belt", reagents={{6471,10}, {6470,10}, {2321,2}}},
   },
   [6533] = {
-    {spell=9271, yield=3, name="Aquadynamic Fish Attractor", reagents={{2841,2}, {6530,1}, {4364,1}}},
+    {spell=9271, yield=1, name="Aquadynamic Fish Attractor", reagents={{2841,2}, {6530,1}, {4364,1}}},
   },
   [6657] = {
     {spell=8238, yield=1, name="Savory Deviate Delight", reagents={{6522,1}, {2678,1}}},
@@ -1249,7 +1252,7 @@ CraftTreeDB = {
     {spell=8780, yield=1, name="Hands of Darkness", reagents={{4305,3}, {4234,2}, {6048,2}, {2321,2}}},
   },
   [7048] = {
-    {spell=8760, yield=1, name="Azure Silk Hood", reagents={{4305,3}, {3182,1}, {2321,2}}},
+    {spell=8760, yield=1, name="Azure Silk Hood", reagents={{4305,2}, {6260,2}, {2321,1}}},
   },
   [7049] = {
     {spell=8782, yield=1, name="Truefaith Gloves", reagents={{4305,3}, {4234,2}, {929,4}, {2321,1}}},
@@ -1282,7 +1285,7 @@ CraftTreeDB = {
     {spell=8791, yield=1, name="Crimson Silk Vest", reagents={{4305,4}, {2604,2}, {2321,2}}},
   },
   [7059] = {
-    {spell=8793, yield=1, name="Crimson Silk Shoulders", reagents={{4305,5}, {6271,2}, {2604,2}, {4291,2}}},
+    {spell=8793, yield=1, name="Crimson Silk Shoulders", reagents={{4305,5}, {6371,2}, {2604,2}, {4291,2}}},
   },
   [7060] = {
     {spell=8795, yield=1, name="Azure Shoulders", reagents={{4305,6}, {7072,2}, {6260,2}, {4291,2}}},
@@ -1303,16 +1306,16 @@ CraftTreeDB = {
     {spell=8784, yield=1, name="Green Silk Armor", reagents={{4305,5}, {2605,2}, {4291,1}}},
   },
   [7067] = {
-    {spell=57555, yield=3, name="Transmute: Elemental Earth", reagents={{7075,1}}},
+    {spell=57555, yield=1, name="Transmute: Elemental Earth", reagents={{7075,1}}},
   },
   [7068] = {
-    {spell=25146, yield=3, name="Transmute: Elemental Fire", reagents={{7077,1}}},
+    {spell=25146, yield=1, name="Transmute: Elemental Fire", reagents={{7077,1}}},
   },
   [7070] = {
-    {spell=57557, yield=3, name="Transmute: Elemental Water", reagents={{7079,1}}},
+    {spell=57557, yield=1, name="Transmute: Elemental Water", reagents={{7079,1}}},
   },
   [7071] = {
-    {spell=8768, yield=2, name="Iron Belt Buckle", reagents={{3575,1}}},
+    {spell=8768, yield=1, name="Iron Buckle", reagents={{3575,1}}},
   },
   [7076] = {
     {spell=17560, yield=1, name="Transmute: Fire to Earth", reagents={{7078,1}}},
@@ -1398,7 +1401,7 @@ CraftTreeDB = {
     {spell=9197, yield=1, name="Green Whelp Armor", reagents={{7392,4}, {4234,10}, {2321,2}}},
   },
   [7377] = {
-    {spell=9198, yield=1, name="Frost Leather Cloak", reagents={{4236,2}, {4234,12}, {3824,1}, {2321,1}}},
+    {spell=9198, yield=1, name="Frost Leather Cloak", reagents={{4234,6}, {7067,2}, {7070,2}, {2321,2}}},
   },
   [7378] = {
     {spell=9201, yield=1, name="Dusky Bracers", reagents={{4234,16}, {2325,1}, {4291,2}}},
@@ -1413,7 +1416,7 @@ CraftTreeDB = {
     {spell=9207, yield=1, name="Dusky Boots", reagents={{4234,8}, {7428,2}, {3824,1}, {4291,2}}},
   },
   [7391] = {
-    {spell=9208, yield=1, name="Swift Boots", reagents={{4234,10}, {2359,2}, {4337,2}, {4291,1}}},
+    {spell=9208, yield=1, name="Swift Boots", reagents={{4234,10}, {2459,2}, {4337,2}, {4291,1}}},
   },
   [7506] = {
     {spell=9269, yield=1, name="Gnomish Universal Remote", reagents={{2841,6}, {4375,1}, {814,2}, {818,1}, {774,1}}},
@@ -1563,13 +1566,13 @@ CraftTreeDB = {
     {spell=9964, yield=1, name="Mithril Spurs", reagents={{3860,4}, {7966,3}}},
   },
   [8067] = {
-    {spell=3920, yield=200, name="Crafted Light Shot", reagents={{4357,1}, {2840,1}}},
+    {spell=3920, yield=1, name="Crafted Light Shot", reagents={{4357,1}, {2840,1}}},
   },
   [8068] = {
-    {spell=3930, yield=200, name="Crafted Heavy Shot", reagents={{4364,1}, {2840,1}}},
+    {spell=3930, yield=1, name="Crafted Heavy Shot", reagents={{4364,1}, {2840,1}}},
   },
   [8069] = {
-    {spell=3947, yield=200, name="Crafted Solid Shot", reagents={{4377,1}, {2841,1}}},
+    {spell=3947, yield=1, name="Crafted Solid Shot", reagents={{4377,1}, {2841,1}}},
   },
   [8170] = {
     {spell=22331, yield=1, name="Rugged Leather", reagents={{4304,6}}},
@@ -1626,13 +1629,13 @@ CraftTreeDB = {
     {spell=10560, yield=1, name="Big Voodoo Pants", reagents={{4304,10}, {8152,6}, {8343,2}}},
   },
   [8203] = {
-    {spell=10525, yield=1, name="Tough Scorpid Breastplate", reagents={{4304,12}, {8151,12}, {4291,4}}},
+    {spell=10525, yield=1, name="Tough Scorpid Breastplate", reagents={{4304,12}, {8154,12}, {4291,4}}},
   },
   [8204] = {
     {spell=10542, yield=1, name="Tough Scorpid Gloves", reagents={{4304,6}, {8154,8}, {4291,2}}},
   },
   [8205] = {
-    {spell=10533, yield=1, name="Tough Scorpid Bracers", reagents={{4304,10}, {8151,4}, {4291,2}}},
+    {spell=10533, yield=1, name="Tough Scorpid Bracers", reagents={{4304,10}, {8154,4}, {4291,2}}},
   },
   [8206] = {
     {spell=10568, yield=1, name="Tough Scorpid Leggings", reagents={{4304,14}, {8154,8}, {8343,2}}},
@@ -1785,13 +1788,13 @@ CraftTreeDB = {
     {spell=11476, yield=1, name="Elixir of Shadow Power", reagents={{8845,3}, {8925,1}}},
   },
   [9312] = {
-    {spell=23067, yield=3, name="Blue Firework", reagents={{4377,1}, {4234,1}}},
+    {spell=23067, yield=1, name="Blue Firework", reagents={{4377,1}, {4234,1}}},
   },
   [9313] = {
-    {spell=23068, yield=3, name="Green Firework", reagents={{4377,1}, {4234,1}}},
+    {spell=23068, yield=1, name="Green Firework", reagents={{4377,1}, {4234,1}}},
   },
   [9318] = {
-    {spell=23066, yield=3, name="Red Firework", reagents={{4377,1}, {4234,1}}},
+    {spell=23066, yield=1, name="Red Firework", reagents={{4377,1}, {4234,1}}},
   },
   [9366] = {
     {spell=11643, yield=1, name="Golden Scale Gauntlets", reagents={{3859,10}, {3577,4}, {3486,4}, {3864,1}}},
@@ -1848,7 +1851,7 @@ CraftTreeDB = {
     {spell=12072, yield=1, name="Black Mageweave Headband", reagents={{4339,3}, {8343,2}}},
   },
   [10025] = {
-    {spell=12086, yield=1, name="Shadoweave Mask", reagents={{4339,2}, {10285,8}, {8343,3}}},
+    {spell=12086, yield=1, name="Shadoweave Mask", reagents={{4339,2}, {10285,8}, {8343,2}}},
   },
   [10026] = {
     {spell=12073, yield=1, name="Black Mageweave Boots", reagents={{4339,3}, {8343,2}, {4304,2}}},
@@ -1860,7 +1863,7 @@ CraftTreeDB = {
     {spell=12076, yield=1, name="Shadoweave Shoulders", reagents={{4339,5}, {10285,4}, {8343,2}}},
   },
   [10029] = {
-    {spell=12078, yield=1, name="Red Mageweave Shoulders", reagents={{4339,4}, {2604,1}, {8343,1}}},
+    {spell=12078, yield=1, name="Red Mageweave Shoulders", reagents={{4339,4}, {2604,2}, {8343,3}}},
   },
   [10030] = {
     {spell=12081, yield=1, name="Admiral's Hat", reagents={{4339,3}, {4589,6}, {8343,2}}},
@@ -1875,7 +1878,7 @@ CraftTreeDB = {
     {spell=12084, yield=1, name="Red Mageweave Headband", reagents={{4339,4}, {2604,2}, {8343,2}}},
   },
   [10034] = {
-    {spell=12085, yield=1, name="Tuxedo Shirt", reagents={{4339,4}, {2604,2}, {8343,2}}},
+    {spell=12085, yield=1, name="Tuxedo Shirt", reagents={{4339,4}, {8343,2}}},
   },
   [10035] = {
     {spell=12089, yield=1, name="Tuxedo Pants", reagents={{4339,4}, {8343,3}}},
@@ -1884,7 +1887,7 @@ CraftTreeDB = {
     {spell=12093, yield=1, name="Tuxedo Jacket", reagents={{4339,5}, {8343,3}}},
   },
   [10038] = {
-    {spell=12087, yield=1, name="Stormcloth Shoulders", reagents={{4339,6}, {7079,6}, {8343,3}}},
+    {spell=12087, yield=1, name="Stormcloth Shoulders", reagents={{4339,5}, {7079,6}, {8343,3}}},
   },
   [10039] = {
     {spell=12090, yield=1, name="Stormcloth Boots", reagents={{4339,6}, {7079,6}, {8343,3}, {4304,2}}},
@@ -1968,7 +1971,7 @@ CraftTreeDB = {
     {spell=12617, yield=1, name="Deepdive Helmet", reagents={{3860,8}, {10561,1}, {6037,1}, {818,4}, {774,4}}},
   },
   [10507] = {
-    {spell=12586, yield=2, name="Solid Dynamite", reagents={{10505,1}, {4306,1}}},
+    {spell=12586, yield=1, name="Solid Dynamite", reagents={{10505,1}, {4306,1}}},
   },
   [10508] = {
     {spell=12595, yield=1, name="Mithril Blunderbuss", reagents={{10559,1}, {10560,1}, {4400,1}, {3860,4}, {7068,2}}},
@@ -1977,13 +1980,13 @@ CraftTreeDB = {
     {spell=12614, yield=1, name="Mithril Heavy-bore Rifle", reagents={{10559,2}, {10560,1}, {4400,1}, {3860,6}, {3864,2}}},
   },
   [10512] = {
-    {spell=12596, yield=200, name="Hi-Impact Mithril Slugs", reagents={{3860,1}, {10505,1}}},
+    {spell=12596, yield=1, name="Hi-Impact Mithril Slugs", reagents={{3860,1}, {10505,1}}},
   },
   [10513] = {
-    {spell=12621, yield=200, name="Mithril Gyro-Shot", reagents={{3860,2}, {10505,2}}},
+    {spell=12621, yield=1, name="Mithril Gyro-Shot", reagents={{3860,2}, {10505,2}}},
   },
   [10514] = {
-    {spell=12603, yield=3, name="Mithril Frag Bomb", reagents={{10561,1}, {10560,1}, {10505,1}}},
+    {spell=12603, yield=1, name="Mithril Frag Bomb", reagents={{10561,1}, {10560,1}, {10505,1}}},
   },
   [10518] = {
     {spell=12616, yield=1, name="Parachute Cloak", reagents={{4339,4}, {10285,2}, {10560,1}, {10505,4}}},
@@ -2004,7 +2007,7 @@ CraftTreeDB = {
     {spell=12620, yield=1, name="Sniper Scope", reagents={{10559,1}, {7910,1}, {6037,2}}},
   },
   [10558] = {
-    {spell=12584, yield=3, name="Gold Power Core", reagents={{3577,1}}},
+    {spell=12584, yield=1, name="Gold Power Core", reagents={{3577,1}}},
   },
   [10559] = {
     {spell=12589, yield=1, name="Mithril Tube", reagents={{3860,3}}},
@@ -2016,7 +2019,7 @@ CraftTreeDB = {
     {spell=12599, yield=1, name="Mithril Casing", reagents={{3860,3}}},
   },
   [10562] = {
-    {spell=12619, yield=4, name="Hi-Explosive Bomb", reagents={{10561,2}, {10560,1}, {10505,2}}},
+    {spell=12619, yield=1, name="Hi-Explosive Bomb", reagents={{10561,2}, {10560,1}, {10505,2}}},
   },
   [10576] = {
     {spell=12624, yield=1, name="Mithril Mechanical Dragonling", reagents={{3860,14}, {7077,4}, {6037,4}, {9060,2}, {9061,2}, {7910,2}}},
@@ -2029,7 +2032,7 @@ CraftTreeDB = {
     {spell=12722, yield=1, name="Goblin Radio", reagents={{10561,1}, {3860,2}, {4389,1}, {10560,1}}},
   },
   [10586] = {
-    {spell=12754, yield=2, name="The Big One", reagents={{10561,1}, {9061,1}, {10507,6}, {10560,1}}},
+    {spell=12754, yield=1, name="The Big One", reagents={{10561,1}, {9061,1}, {10507,6}, {10560,1}}},
   },
   [10587] = {
     {spell=12755, yield=1, name="Goblin Bomb Dispenser", reagents={{10561,2}, {10505,4}, {6037,6}, {10560,1}, {4407,2}}},
@@ -2074,25 +2077,34 @@ CraftTreeDB = {
     {spell=12908, yield=1, name="Goblin Dragon Gun", reagents={{10559,2}, {9061,4}, {3860,6}, {6037,6}, {10560,1}}},
   },
   [10841] = {
-    {spell=13028, yield=4, name="Goldthorn Tea", reagents={{3821,1}, {159,1}}},
+    {spell=13028, yield=1, name="Goldthorn Tea", reagents={{3821,1}, {159,1}}},
   },
   [10918] = {
     {spell=13220, yield=1, name="Wound Poison", reagents={{2930,1}, {5173,1}, {3372,1}}},
   },
-  [10920] = {
-    {spell=13228, yield=1, name="Wound Poison II", reagents={{2930,1}, {5173,2}, {3372,1}}},
-  },
-  [10921] = {
-    {spell=13229, yield=1, name="Wound Poison III", reagents={{8923,1}, {5173,2}, {8925,1}}},
-  },
-  [10922] = {
-    {spell=13230, yield=1, name="Wound Poison IV", reagents={{8923,2}, {5173,2}, {8925,1}}},
-  },
   [11128] = {
     {spell=14379, yield=1, name="Golden Rod", reagents={{3577,1}, {3478,2}}},
   },
+  [11130] = {
+    {spell=13628, yield=1, name="Runed Golden Rod", reagents={{11128,1}, {5500,1}, {11082,2}, {11083,2}}},
+  },
   [11144] = {
     {spell=14380, yield=1, name="Truesilver Rod", reagents={{6037,1}, {3486,1}}},
+  },
+  [11145] = {
+    {spell=13702, yield=1, name="Runed Truesilver Rod", reagents={{11144,1}, {7971,1}, {11135,2}, {11137,2}}},
+  },
+  [11287] = {
+    {spell=14293, yield=1, name="Lesser Magic Wand", reagents={{4470,1}, {10938,1}}},
+  },
+  [11288] = {
+    {spell=14807, yield=1, name="Greater Magic Wand", reagents={{4470,1}, {10939,1}}},
+  },
+  [11289] = {
+    {spell=14809, yield=1, name="Lesser Mystic Wand", reagents={{42007,1}, {11134,1}, {11083,1}}},
+  },
+  [11290] = {
+    {spell=14810, yield=1, name="Greater Mystic Wand", reagents={{42007,1}, {11135,1}, {11137,1}}},
   },
   [11371] = {
     {spell=14891, yield=1, name="Smelt Dark Iron", reagents={{11370,8}}},
@@ -2115,11 +2127,14 @@ CraftTreeDB = {
   [11608] = {
     {spell=15292, yield=1, name="Dark Iron Pulverizer", reagents={{11371,18}, {7077,4}}},
   },
+  [11811] = {
+    {spell=15596, yield=1, name="Smoking Heart of the Mountain", reagents={{11382,1}, {7078,1}, {14343,3}}},
+  },
   [11825] = {
     {spell=15628, yield=1, name="Pet Bombling", reagents={{4394,1}, {7077,1}, {7191,1}, {3860,6}}},
   },
   [11826] = {
-    {spell=15633, yield=1, name="Lil' Smoky", reagents={{7075,1}, {4389,3}, {7191,1}, {3860,2}, {6037,1}}},
+    {spell=15633, yield=1, name="Lil' Smoky", reagents={{7075,1}, {4389,2}, {7191,1}, {3860,2}, {6037,1}}},
   },
   [12190] = {
     {spell=15833, yield=1, name="Dreamless Sleep Potion", reagents={{8831,3}, {8925,1}}},
@@ -2131,7 +2146,7 @@ CraftTreeDB = {
     {spell=15855, yield=1, name="Roast Raptor", reagents={{12184,1}, {2692,1}}},
   },
   [12212] = {
-    {spell=15861, yield=2, name="Jungle Stew", reagents={{12202,1}, {159,1}, {4536,2}}},
+    {spell=15861, yield=1, name="Jungle Stew", reagents={{12202,1}, {159,1}, {4536,2}}},
   },
   [12213] = {
     {spell=15863, yield=1, name="Carrion Surprise", reagents={{12037,1}, {2692,1}}},
@@ -2140,7 +2155,7 @@ CraftTreeDB = {
     {spell=15865, yield=1, name="Mystery Stew", reagents={{12037,1}, {2596,1}}},
   },
   [12215] = {
-    {spell=15910, yield=2, name="Heavy Kodo Stew", reagents={{12204,2}, {3713,1}, {159,1}}},
+    {spell=15910, yield=1, name="Heavy Kodo Stew", reagents={{12204,2}, {3713,1}, {159,1}}},
   },
   [12216] = {
     {spell=15915, yield=1, name="Spiced Chili Crab", reagents={{12206,1}, {2692,2}}},
@@ -2194,7 +2209,7 @@ CraftTreeDB = {
     {spell=16645, yield=1, name="Radiant Belt", reagents={{12359,10}, {7077,2}}},
   },
   [12417] = {
-    {spell=16659, yield=1, name="Radiant Circlet", reagents={{12359,18}, {7910,4}}},
+    {spell=16659, yield=1, name="Radiant Circlet", reagents={{12359,18}, {7077,4}}},
   },
   [12418] = {
     {spell=16654, yield=1, name="Radiant Gloves", reagents={{12359,18}, {7077,4}}},
@@ -2278,7 +2293,7 @@ CraftTreeDB = {
     {spell=16729, yield=1, name="Lionheart Helm", reagents={{12359,80}, {12360,12}, {8146,40}, {12361,10}, {12800,4}}},
   },
   [12641] = {
-    {spell=16746, yield=1, name="Invulnerable Mail", reagents={{12360,30}, {12655,30}, {12364,6}, {12800,6}}},
+    {spell=16746, yield=1, name="Invulnerable Mail", reagents={{12360,20}, {12655,20}, {12364,6}, {12800,6}}},
   },
   [12643] = {
     {spell=16640, yield=1, name="Dense Weightstone", reagents={{12365,1}, {14047,1}}},
@@ -2288,6 +2303,9 @@ CraftTreeDB = {
   },
   [12645] = {
     {spell=16651, yield=1, name="Thorium Shield Spike", reagents={{12359,4}, {12644,4}, {7076,2}}},
+  },
+  [12655] = {
+    {spell=17180, yield=1, name="Enchanted Thorium", reagents={{12359,1}, {16204,3}}},
   },
   [12764] = {
     {spell=16960, yield=1, name="Thorium Greatsword", reagents={{12359,16}, {12644,2}, {8170,4}}},
@@ -2326,10 +2344,10 @@ CraftTreeDB = {
     {spell=16995, yield=1, name="Heartseeker", reagents={{12360,10}, {12655,10}, {12810,2}, {7910,6}, {12800,6}, {12799,6}, {12644,4}}},
   },
   [12784] = {
-    {spell=16994, yield=1, name="Arcanite Reaper", reagents={{12360,20}, {12810,6}, {12644,2}}},
+    {spell=16994, yield=1, name="Arcanite Reaper", reagents={{12360,14}, {12810,6}, {12644,2}}},
   },
   [12790] = {
-    {spell=16990, yield=1, name="Arcanite Champion", reagents={{12360,15}, {12800,8}, {12811,1}, {12799,4}, {12810,8}, {12644,2}}},
+    {spell=16990, yield=1, name="Arcanite Champion", reagents={{12360,10}, {12800,8}, {12811,1}, {12799,4}, {12810,8}, {12644,2}}},
   },
   [12792] = {
     {spell=16984, yield=1, name="Volcanic Hammer", reagents={{12359,30}, {7077,4}, {7910,4}, {8170,4}}},
@@ -2338,7 +2356,7 @@ CraftTreeDB = {
     {spell=16993, yield=1, name="Masterwork Stormhammer", reagents={{12655,20}, {12364,8}, {12799,8}, {7076,6}, {12810,4}}},
   },
   [12795] = {
-    {spell=16986, yield=1, name="Blood Talon", reagents={{12655,10}, {12360,10}, {12662,8}, {7910,10}, {12644,2}, {8170,8}}},
+    {spell=16986, yield=1, name="Blood Talon", reagents={{12655,10}, {12360,10}, {12662,8}, {7910,10}, {12644,2}}},
   },
   [12796] = {
     {spell=16988, yield=1, name="Hammer of the Titans", reagents={{12359,50}, {12360,15}, {12809,4}, {12810,6}, {7076,10}}},
@@ -2357,6 +2375,9 @@ CraftTreeDB = {
   },
   [12808] = {
     {spell=17564, yield=1, name="Transmute: Water to Undeath", reagents={{7080,1}}},
+  },
+  [12810] = {
+    {spell=17181, yield=1, name="Enchanted Leather", reagents={{8170,1}, {16202,1}}},
   },
   [13423] = {
     {spell=17551, yield=1, name="Stonescale Oil", reagents={{13422,1}, {3372,1}}},
@@ -2527,7 +2548,7 @@ CraftTreeDB = {
     {spell=18420, yield=1, name="Brightcloth Cloak", reagents={{14048,4}, {3577,2}, {14341,1}}},
   },
   [14104] = {
-    {spell=18439, yield=1, name="Brightcloth Pants", reagents={{14048,6}, {2577,4}, {14227,1}, {14341,1}}},
+    {spell=18439, yield=1, name="Brightcloth Pants", reagents={{14048,6}, {3577,4}, {14227,1}, {14341,1}}},
   },
   [14106] = {
     {spell=18451, yield=1, name="Felcloth Robe", reagents={{14048,8}, {14256,8}, {12662,4}, {14341,2}}},
@@ -2614,7 +2635,7 @@ CraftTreeDB = {
     {spell=19050, yield=1, name="Green Dragonscale Breastplate", reagents={{8170,20}, {15412,25}, {14341,2}}},
   },
   [15046] = {
-    {spell=19060, yield=1, name="Green Dragonscale Leggings", reagents={{8170,20}, {15412,25}, {14341,2}}},
+    {spell=19060, yield=1, name="Green Dragonscale Leggings", reagents={{8170,20}, {15412,25}, {14341,1}}},
   },
   [15047] = {
     {spell=19054, yield=1, name="Red Dragonscale Breastplate", reagents={{8170,40}, {15414,30}, {14341,1}}},
@@ -2626,7 +2647,7 @@ CraftTreeDB = {
     {spell=19089, yield=1, name="Blue Dragonscale Shoulders", reagents={{8170,28}, {15415,30}, {12810,2}, {15407,1}, {14341,1}}},
   },
   [15050] = {
-    {spell=19085, yield=1, name="Black Dragonscale Breastplate", reagents={{8170,40}, {15415,60}, {15407,1}, {14341,2}}},
+    {spell=19085, yield=1, name="Black Dragonscale Breastplate", reagents={{8170,40}, {15416,60}, {15407,1}, {14341,2}}},
   },
   [15051] = {
     {spell=19094, yield=1, name="Black Dragonscale Shoulders", reagents={{8170,44}, {15416,45}, {12810,2}, {15407,1}, {14341,1}}},
@@ -2701,7 +2722,7 @@ CraftTreeDB = {
     {spell=19053, yield=1, name="Chimeric Gloves", reagents={{8170,6}, {15423,6}, {14341,1}}},
   },
   [15075] = {
-    {spell=19081, yield=1, name="Chimeric Vest", reagents={{8170,10}, {12803,1}, {14341,1}}},
+    {spell=19081, yield=1, name="Chimeric Vest", reagents={{8170,10}, {15423,10}, {14341,1}}},
   },
   [15076] = {
     {spell=19051, yield=1, name="Heavy Scorpid Vest", reagents={{8170,6}, {15408,6}, {14341,1}}},
@@ -2737,7 +2758,7 @@ CraftTreeDB = {
     {spell=19071, yield=1, name="Wicked Leather Headband", reagents={{8170,12}, {2325,1}, {14341,1}}},
   },
   [15087] = {
-    {spell=19083, yield=1, name="Wicked Leather Pants", reagents={{8170,16}, {15407,10}, {2325,3}, {14341,1}}},
+    {spell=19083, yield=1, name="Wicked Leather Pants", reagents={{8170,16}, {15407,1}, {2325,3}, {14341,1}}},
   },
   [15088] = {
     {spell=19092, yield=1, name="Wicked Leather Belt", reagents={{8170,14}, {2325,2}, {14341,2}}},
@@ -2779,22 +2800,22 @@ CraftTreeDB = {
     {spell=19567, yield=1, name="Salt Shaker", reagents={{10561,1}, {12359,6}, {10558,1}, {10560,4}}},
   },
   [15869] = {
-    {spell=19666, yield=2, name="Silver Skeleton Key", reagents={{2842,1}, {3470,1}}},
+    {spell=19666, yield=1, name="Silver Skeleton Key", reagents={{2842,1}, {3470,1}}},
   },
   [15870] = {
-    {spell=19667, yield=2, name="Golden Skeleton Key", reagents={{3577,1}, {3486,1}}},
+    {spell=19667, yield=1, name="Golden Skeleton Key", reagents={{3577,1}, {3486,1}}},
   },
   [15871] = {
-    {spell=19668, yield=2, name="Truesilver Skeleton Key", reagents={{6037,1}, {7966,1}}},
+    {spell=19668, yield=1, name="Truesilver Skeleton Key", reagents={{6037,1}, {7966,1}}},
   },
   [15872] = {
-    {spell=19669, yield=2, name="Arcanite Skeleton Key", reagents={{12360,1}, {12644,1}}},
+    {spell=19669, yield=1, name="Arcanite Skeleton Key", reagents={{12360,1}, {12644,1}}},
   },
   [15992] = {
     {spell=19788, yield=1, name="Dense Blasting Powder", reagents={{12365,2}}},
   },
   [15993] = {
-    {spell=19790, yield=3, name="Thorium Grenade", reagents={{15994,1}, {12359,3}, {15992,3}, {14047,3}}},
+    {spell=19790, yield=1, name="Thorium Grenade", reagents={{15994,1}, {12359,3}, {15992,3}, {14047,3}}},
   },
   [15994] = {
     {spell=19791, yield=1, name="Thorium Widget", reagents={{12359,3}, {14047,1}}},
@@ -2806,7 +2827,7 @@ CraftTreeDB = {
     {spell=19793, yield=1, name="Lifelike Mechanical Toad", reagents={{12803,1}, {15994,4}, {10558,1}, {8170,1}}},
   },
   [15997] = {
-    {spell=19800, yield=200, name="Thorium Shells", reagents={{12359,2}, {15992,1}}},
+    {spell=19800, yield=1, name="Thorium Shells", reagents={{12359,2}, {15992,1}}},
   },
   [15999] = {
     {spell=19794, yield=1, name="Spellpower Goggles Xtreme Plus", reagents={{10502,1}, {7910,4}, {12810,2}, {14047,8}}},
@@ -2818,7 +2839,7 @@ CraftTreeDB = {
     {spell=19796, yield=1, name="Dark Iron Rifle", reagents={{16000,2}, {11371,6}, {10546,2}, {12361,2}, {12799,2}, {8170,4}}},
   },
   [16005] = {
-    {spell=19799, yield=3, name="Dark Iron Bomb", reagents={{15994,2}, {11371,1}, {15992,3}, {14047,3}}},
+    {spell=19799, yield=1, name="Dark Iron Bomb", reagents={{15994,2}, {11371,1}, {15992,3}, {14047,3}}},
   },
   [16006] = {
     {spell=19815, yield=1, name="Delicate Arcanite Converter", reagents={{12360,1}, {14227,1}}},
@@ -2839,13 +2860,16 @@ CraftTreeDB = {
     {spell=19814, yield=1, name="Masterwork Target Dummy", reagents={{10561,1}, {16000,1}, {15994,2}, {6037,1}, {8170,2}, {14047,4}}},
   },
   [16040] = {
-    {spell=19831, yield=3, name="Arcane Bomb", reagents={{16006,1}, {12359,3}, {14047,1}}},
+    {spell=19831, yield=1, name="Arcane Bomb", reagents={{16006,1}, {12359,3}, {14047,1}}},
   },
   [16206] = {
     {spell=20201, yield=1, name="Arcanite Rod", reagents={{12360,3}, {12644,1}}},
   },
+  [16207] = {
+    {spell=20051, yield=1, name="Runed Arcanite Rod", reagents={{16206,1}, {13926,1}, {16204,10}, {16203,4}, {14343,4}, {14344,2}}},
+  },
   [16766] = {
-    {spell=20626, yield=2, name="Undermine Clam Chowder", reagents={{7974,2}, {2692,1}, {1179,1}}},
+    {spell=20626, yield=1, name="Undermine Clam Chowder", reagents={{7974,2}, {2692,1}, {1179,1}}},
   },
   [16979] = {
     {spell=20849, yield=1, name="Flarecore Gloves", reagents={{14342,4}, {17010,6}, {7078,4}, {12810,2}, {14341,2}}},
@@ -2863,7 +2887,7 @@ CraftTreeDB = {
     {spell=20855, yield=1, name="Black Dragonscale Boots", reagents={{12810,6}, {15416,30}, {17010,4}, {17011,3}, {14341,2}}},
   },
   [16988] = {
-    {spell=20873, yield=1, name="Fiery Chain Shoulders", reagents={{11371,16}, {17010,4}, {17011,5}}},
+    {spell=20873, yield=1, name="Fiery Chain Shoulders", reagents={{11371,10}, {17010,4}, {17011,3}}},
   },
   [16989] = {
     {spell=20872, yield=1, name="Fiery Chain Girdle", reagents={{11371,6}, {17010,3}, {17011,3}}},
@@ -2875,10 +2899,10 @@ CraftTreeDB = {
     {spell=20874, yield=1, name="Dark Iron Bracers", reagents={{11371,4}, {17010,2}, {17011,2}}},
   },
   [17015] = {
-    {spell=20890, yield=1, name="Dark Iron Reaver", reagents={{11371,16}, {17010,12}, {11382,2}, {12810,2}}},
+    {spell=20890, yield=1, name="Dark Iron Reaver", reagents={{11371,10}, {17010,6}, {11382,2}, {12810,2}}},
   },
   [17016] = {
-    {spell=20897, yield=1, name="Dark Iron Destroyer", reagents={{11371,18}, {17011,12}, {11382,2}, {12644,2}}},
+    {spell=20897, yield=1, name="Dark Iron Destroyer", reagents={{11371,10}, {17011,6}, {11382,2}, {12810,2}}},
   },
   [17193] = {
     {spell=21161, yield=1, name="Sulfuron Hammer", reagents={{17203,8}, {11371,20}, {12360,50}, {7078,25}, {11382,10}, {17011,10}, {17010,10}}},
@@ -2917,7 +2941,7 @@ CraftTreeDB = {
     {spell=22797, yield=1, name="Force Reactive Disk", reagents={{12360,6}, {16006,2}, {7082,8}, {12803,12}, {7076,8}}},
   },
   [18232] = {
-    {spell=22704, yield=1, name="Field Repair Bot 74A", reagents={{12359,12}, {8170,4}, {7191,1}, {7067,2}, {7068,1}}},
+    {spell=22704, yield=1, name="Field Repair Bot 74A", reagents={{12359,12}, {7191,2}, {10558,1}}},
   },
   [18238] = {
     {spell=22711, yield=1, name="Shadowskin Gloves", reagents={{4304,6}, {7428,8}, {7971,2}, {4236,2}, {1210,4}, {8343,1}}},
@@ -2926,7 +2950,7 @@ CraftTreeDB = {
     {spell=22727, yield=1, name="Core Armor Kit", reagents={{17012,3}, {14341,2}}},
   },
   [18253] = {
-    {spell=22732, yield=1, name="Major Rejuvenation Potion", reagents={{10286,1}, {13464,4}, {13463,4}, {18256,1}}},
+    {spell=22732, yield=1, name="Major Rejuvenation Potion", reagents={{10286,1}, {13464,3}, {13463,3}, {18256,1}}},
   },
   [18254] = {
     {spell=22761, yield=1, name="Runn Tum Tuber Surprise", reagents={{18255,1}, {3713,1}}},
@@ -3011,7 +3035,7 @@ CraftTreeDB = {
     {spell=23082, yield=1, name="Ultra-Flash Shadow Reflector", reagents={{11371,8}, {18631,4}, {12803,6}, {12808,4}, {12800,2}, {12799,2}}},
   },
   [18641] = {
-    {spell=23070, yield=2, name="Dense Dynamite", reagents={{15992,2}, {14047,3}}},
+    {spell=23070, yield=1, name="Dense Dynamite", reagents={{15992,2}, {14047,3}}},
   },
   [18645] = {
     {spell=23096, yield=1, name="Alarm-O-Bot", reagents={{12359,4}, {15994,2}, {8170,4}, {7910,1}, {7191,1}}},
@@ -3032,7 +3056,7 @@ CraftTreeDB = {
     {spell=23489, yield=1, name="Ultrasafe Transporter - Gadgetzan", reagents={{3860,12}, {18631,2}, {7075,4}, {7079,2}, {7909,4}, {9060,1}}},
   },
   [19026] = {
-    {spell=23507, yield=4, name="Snake Burst Firework", reagents={{15992,2}, {14047,2}, {8150,1}}},
+    {spell=23507, yield=1, name="Snake Burst Firework", reagents={{15992,2}, {14047,2}, {8150,1}}},
   },
   [19043] = {
     {spell=23628, yield=1, name="Heavy Timbermaw Belt", reagents={{12359,12}, {7076,3}, {12803,3}}},
@@ -3155,7 +3179,7 @@ CraftTreeDB = {
     {spell=24141, yield=1, name="Darksoul Shoulders", reagents={{12359,16}, {19774,10}, {12799,1}}},
   },
   [19931] = {
-    {spell=24266, yield=3, name="Gurubashi Mojo Madness", reagents={{12938,1}, {19943,1}, {12804,6}, {13468,1}}},
+    {spell=24266, yield=1, name="Gurubashi Mojo Madness", reagents={{12938,1}, {19943,1}, {12804,6}, {13468,1}}},
   },
   [19998] = {
     {spell=24357, yield=1, name="Bloodvine Lens", reagents={{19726,5}, {19774,5}, {16006,1}, {12804,8}, {12810,4}}},
@@ -3232,11 +3256,32 @@ CraftTreeDB = {
   [20575] = {
     {spell=24940, yield=1, name="Black Whelp Tunic", reagents={{2319,8}, {7286,8}, {4231,1}, {2321,2}}},
   },
+  [20744] = {
+    {spell=25124, yield=1, name="Minor Wizard Oil", reagents={{10940,2}, {17034,1}, {3371,1}}},
+  },
+  [20745] = {
+    {spell=25125, yield=1, name="Minor Mana Oil", reagents={{11083,3}, {17034,2}, {3372,1}}},
+  },
+  [20746] = {
+    {spell=25126, yield=1, name="Lesser Wizard Oil", reagents={{11137,3}, {17035,2}, {3372,1}}},
+  },
+  [20747] = {
+    {spell=25127, yield=1, name="Lesser Mana Oil", reagents={{11176,3}, {8831,2}, {8925,1}}},
+  },
+  [20748] = {
+    {spell=25130, yield=1, name="Brilliant Mana Oil", reagents={{14344,2}, {8831,3}, {18256,1}}},
+  },
+  [20749] = {
+    {spell=25129, yield=1, name="Brilliant Wizard Oil", reagents={{14344,2}, {4625,3}, {18256,1}}},
+  },
+  [20750] = {
+    {spell=25128, yield=1, name="Wizard Oil", reagents={{16204,3}, {4625,2}, {8925,1}}},
+  },
   [20844] = {
     {spell=25347, yield=1, name="Deadly Poison V", reagents={{5173,7}, {8925,1}}},
   },
   [21023] = {
-    {spell=25659, yield=5, name="Dirge's Kickin' Chimaerok Chops", reagents={{2692,1}, {9061,1}, {8150,1}, {21024,1}}},
+    {spell=25659, yield=1, name="Dirge's Kickin' Chimaerok Chops", reagents={{2692,1}, {9061,1}, {8150,1}, {21024,1}}},
   },
   [21072] = {
     {spell=25704, yield=1, name="Smoked Sagefish", reagents={{21071,1}, {2678,1}}},
@@ -3269,13 +3314,13 @@ CraftTreeDB = {
     {spell=26277, yield=1, name="Elixir of Greater Firepower", reagents={{6371,3}, {4625,3}, {8925,1}}},
   },
   [21557] = {
-    {spell=26418, yield=3, name="Small Red Rocket", reagents={{4364,1}, {2319,1}}},
+    {spell=26418, yield=1, name="Small Red Rocket", reagents={{4364,1}, {2319,1}}},
   },
   [21558] = {
-    {spell=26416, yield=3, name="Small Blue Rocket", reagents={{4364,1}, {2319,1}}},
+    {spell=26416, yield=1, name="Small Blue Rocket", reagents={{4364,1}, {2319,1}}},
   },
   [21559] = {
-    {spell=26417, yield=3, name="Small Green Rocket", reagents={{4364,1}, {2319,1}}},
+    {spell=26417, yield=1, name="Small Green Rocket", reagents={{4364,1}, {2319,1}}},
   },
   [21569] = {
     {spell=26442, yield=1, name="Firework Launcher", reagents={{9060,1}, {9061,1}, {10560,1}, {10561,1}}},
@@ -3284,31 +3329,31 @@ CraftTreeDB = {
     {spell=26443, yield=1, name="Firework Cluster Launcher", reagents={{9060,4}, {9061,4}, {18631,2}, {10561,1}}},
   },
   [21571] = {
-    {spell=26423, yield=3, name="Blue Rocket Cluster", reagents={{10505,1}, {4304,1}}},
+    {spell=26423, yield=1, name="Blue Rocket Cluster", reagents={{10505,1}, {4304,1}}},
   },
   [21574] = {
-    {spell=26424, yield=3, name="Green Rocket Cluster", reagents={{10505,1}, {4304,1}}},
+    {spell=26424, yield=1, name="Green Rocket Cluster", reagents={{10505,1}, {4304,1}}},
   },
   [21576] = {
-    {spell=26425, yield=3, name="Red Rocket Cluster", reagents={{10505,1}, {4304,1}}},
+    {spell=26425, yield=1, name="Red Rocket Cluster", reagents={{10505,1}, {4304,1}}},
   },
   [21589] = {
-    {spell=26420, yield=3, name="Large Blue Rocket", reagents={{4377,1}, {4234,1}}},
+    {spell=26420, yield=1, name="Large Blue Rocket", reagents={{4377,1}, {4234,1}}},
   },
   [21590] = {
-    {spell=26421, yield=3, name="Large Green Rocket", reagents={{4377,1}, {4234,1}}},
+    {spell=26421, yield=1, name="Large Green Rocket", reagents={{4377,1}, {4234,1}}},
   },
   [21592] = {
-    {spell=26422, yield=3, name="Large Red Rocket", reagents={{4377,1}, {4234,1}}},
+    {spell=26422, yield=1, name="Large Red Rocket", reagents={{4377,1}, {4234,1}}},
   },
   [21714] = {
-    {spell=26426, yield=3, name="Large Blue Rocket Cluster", reagents={{15992,1}, {8170,1}}},
+    {spell=26426, yield=1, name="Large Blue Rocket Cluster", reagents={{15992,1}, {8170,1}}},
   },
   [21716] = {
-    {spell=26427, yield=3, name="Large Green Rocket Cluster", reagents={{15992,1}, {8170,1}}},
+    {spell=26427, yield=1, name="Large Green Rocket Cluster", reagents={{15992,1}, {8170,1}}},
   },
   [21718] = {
-    {spell=26428, yield=3, name="Large Red Rocket Cluster", reagents={{15992,1}, {8170,1}}},
+    {spell=26428, yield=1, name="Large Red Rocket Cluster", reagents={{15992,1}, {8170,1}}},
   },
   [22191] = {
     {spell=27590, yield=1, name="Obsidian Mail Tunic", reagents={{22203,15}, {22202,36}, {12810,12}, {12809,10}, {12800,4}}},
@@ -3430,6 +3475,15 @@ CraftTreeDB = {
   [33146] = {
     {spell=36946, yield=1, name="Facetted Crystal Scope", reagents={{12655,10}, {16006,4}, {61673,2}, {16000,1}, {42001,2}}},
   },
+  [33366] = {
+    {spell=36753, yield=1, name="Hydracoil Trousers", reagents={{42215,20}, {12810,8}, {15407,2}, {7078,6}, {7077,4}, {42001,2}, {14341,6}}},
+  },
+  [33367] = {
+    {spell=36755, yield=1, name="Hydracoil Gauntlets", reagents={{42215,16}, {12810,6}, {8170,24}, {7076,4}, {7075,4}, {42001,1}, {14341,4}}},
+  },
+  [33368] = {
+    {spell=36757, yield=1, name="Hydracoil Spaulders", reagents={{42215,18}, {12810,4}, {8170,20}, {15407,1}, {7080,3}, {7079,4}, {42001,3}}},
+  },
   [33369] = {
     {spell=36772, yield=1, name="Simple Herbalist’s Backpack", reagents={{2318,6}, {2320,4}, {4231,2}, {2447,12}}},
   },
@@ -3443,7 +3497,7 @@ CraftTreeDB = {
     {spell=36846, yield=1, name="Skinner’s Pack", reagents={{2319,6}, {2321,2}, {4231,4}, {7005,1}}},
   },
   [33373] = {
-    {spell=36859, yield=1, name="Studded Ration’s Bag", reagents={{4234,8}, {4233,3}, {4341,2}, {4291,4}, {6370,6}, {4289,8}}},
+    {spell=36859, yield=1, name="Studded Rations Bag", reagents={{4234,8}, {4233,3}, {4341,2}, {4291,4}, {6370,6}, {4289,8}}},
   },
   [33374] = {
     {spell=36802, yield=1, name="Thick Rations Bag", reagents={{4304,12}, {8172,2}, {8343,4}, {4338,10}, {8150,5}}},
@@ -3461,7 +3515,7 @@ CraftTreeDB = {
     {spell=30054, yield=1, name="Skinner’s Carryall", reagents={{8170,28}, {12810,6}, {15407,2}, {33372,1}, {7071,4}, {14341,6}}},
   },
   [33379] = {
-    {spell=30057, yield=1, name="Cooling Ration’s Bag", reagents={{8170,18}, {12810,8}, {15407,2}, {7080,4}, {7071,4}, {14341,6}}},
+    {spell=30057, yield=1, name="Cooling Rations Bag", reagents={{8170,18}, {12810,8}, {15407,2}, {7080,4}, {7071,4}, {14341,6}}},
   },
   [36701] = {
     {spell=30069, yield=1, name="Oil-Powered Cooker", reagents={{10561,8}, {15994,6}, {10558,6}, {814,10}, {7078,2}, {12655,4}}},
@@ -3565,6 +3619,9 @@ CraftTreeDB = {
   [41349] = {
     {spell=41243, yield=1, name="Emberstone Idol", reagents={{55250,5}, {6371,3}, {7077,1}, {7068,1}}},
   },
+  [41673] = {
+    {spell=58046, yield=1, name="Crawford Apple Tarte", reagents={{4539,1}, {41677,1}, {1179,1}}},
+  },
   [41674] = {
     {spell=58044, yield=1, name="Ambersap Glazed Boar Ribs", reagents={{41675,1}, {2677,1}, {2692,1}}},
   },
@@ -3626,7 +3683,7 @@ CraftTreeDB = {
     {spell=36857, yield=1, name="Treasure Compass", reagents={{4404,4}, {4382,6}, {4359,20}, {1529,2}, {4375,6}}},
   },
   [42108] = {
-    {spell=30006, yield=1, name="Edged Machete", reagents={{3575,8}, {4234,2}, {50231,1}, {42008,1}}},
+    {spell=30006, yield=1, name="Edged Machete", reagents={{3575,8}, {4234,2}, {50231,1}, {42007,1}}},
   },
   [42109] = {
     {spell=30008, yield=1, name="Iron Spear", reagents={{3575,8}, {3486,2}, {50231,1}, {4234,2}}},
@@ -3692,7 +3749,7 @@ CraftTreeDB = {
     {spell=30063, yield=1, name="Major Healing Salve", reagents={{42005,10}, {10286,1}, {42146,4}}},
   },
   [42130] = {
-    {spell=36804, yield=1, name="Spiced Berries ", reagents={{51711,1}, {42005,1}, {2692,2}}},
+    {spell=36804, yield=1, name="Spiced Berries", reagents={{51711,1}, {42005,1}, {2692,2}}},
   },
   [42131] = {
     {spell=36805, yield=1, name="Aromatic Berries", reagents={{51714,1}, {42005,1}, {3713,2}}},
@@ -3719,26 +3776,58 @@ CraftTreeDB = {
     {spell=36850, yield=1, name="Sturdy Net", reagents={{50231,4}}},
   },
   [42155] = {
-    {spell=36795, yield=3, name="Nutritious Rations", reagents={{51712,2}, {51711,2}, {51710,2}}},
+    {spell=36795, yield=1, name="Nutritious Rations", reagents={{51712,2}, {51711,2}, {51710,2}}},
   },
   [42156] = {
     {spell=36807, yield=1, name="Emergency Parachute", reagents={{50231,4}, {14047,5}, {42154,1}}},
   },
+  [42163] = {
+    {spell=32313, yield=1, name="Squid Eel Skewer", reagents={{13755,1}, {13757,1}, {2692,2}}},
+  },
+  [42164] = {
+    {spell=32314, yield=1, name="Deep Sea Stew", reagents={{13760,1}, {13890,1}, {3713,2}}},
+  },
+  [42183] = {
+    {spell=36593, yield=1, name="Denwatcher", reagents={{12655,30}, {12803,8}, {7080,8}, {13463,4}, {12644,4}}},
+  },
+  [42184] = {
+    {spell=36589, yield=1, name="Mixologist Stone", reagents={{12808,8}, {18335,4}, {20520,2}, {61673,2}, {13468,1}}},
+  },
+  [42186] = {
+    {spell=45999, yield=1, name="Honeycomb Delight", reagents={{42293,1}, {42016,1}}},
+  },
+  [42191] = {
+    {spell=36591, yield=1, name="Crystalized Topaz", reagents={{55252,2}, {12800,1}, {55248,1}}},
+  },
+  [42192] = {
+    {spell=36587, yield=1, name="Witherhide Gloves", reagents={{15419,20}, {15407,4}, {12808,6}, {12753,6}, {14341,2}}},
+  },
+  [42193] = {
+    {spell=36585, yield=1, name="Timberclaw Bracers", reagents={{8170,28}, {8146,40}, {15407,1}, {7076,4}, {7080,4}, {14341,2}}},
+  },
+  [42194] = {
+    {spell=36583, yield=1, name="Deeproot Sash", reagents={{14048,16}, {14256,6}, {7971,4}, {20520,12}, {12808,12}, {14341,2}}},
+  },
+  [42195] = {
+    {spell=36581, yield=1, name="Ceremonial Furbolg Pendant", reagents={{12360,4}, {3577,32}, {8168,12}, {7080,4}, {55154,8}, {55248,2}}},
+  },
+  [42196] = {
+    {spell=36579, yield=1, name="Timberheart Dreamcatcher", reagents={{16203,8}, {11291,8}, {12364,4}, {12803,4}, {7082,2}, {7076,2}}},
+  },
   [42198] = {
-    {spell=36858, yield=200, name="Bright Wood Arrows", reagents={{42150,1}, {5116,1}, {3575,1}}},
+    {spell=36858, yield=1, name="Bright Wood Arrows", reagents={{42150,1}, {5116,1}, {3575,1}}},
   },
   [42199] = {
-    {spell=36796, yield=200, name="Shade Wood Arrows", reagents={{42151,1}, {5636,1}, {3860,1}}},
+    {spell=36796, yield=1, name="Shade Wood Arrows", reagents={{42151,1}, {5636,1}, {3860,1}}},
   },
   [42200] = {
-    {spell=30031, yield=200, name="Smooth Ironfeather Arrows", reagents={{42152,1}, {15420,1}, {12359,1}}},
+    {spell=30031, yield=1, name="Smooth Ironfeather Arrows", reagents={{42152,1}, {15420,1}, {12359,1}}},
   },
   [42201] = {
-    {spell=30061, yield=200, name="Starfeather Arrows", reagents={{42153,1}, {15420,4}}},
-    {spell=30067, yield=200, name="Starfeather Arrows", reagents={{42153,1}, {15420,4}, {12655,1}}},
+    {spell=30067, yield=1, name="Starfeather Arrows", reagents={{42153,1}, {15420,4}, {12655,1}}},
   },
   [42202] = {
-    {spell=32310, yield=200, name="Enchanted Thorium Shells", reagents={{12655,2}, {15992,1}}},
+    {spell=32310, yield=1, name="Enchanted Thorium Shells", reagents={{12655,2}, {15992,1}}},
   },
   [42203] = {
     {spell=34762, yield=1, name="Ceremonial Belt Buckle", reagents={{3575,4}, {2319,4}, {5116,2}, {5373,1}}},
@@ -3750,10 +3839,10 @@ CraftTreeDB = {
     {spell=34758, yield=1, name="Kodoheart Necklace", reagents={{2841,6}, {3827,1}, {7069,4}, {1705,2}, {2842,2}}},
   },
   [42229] = {
-    {spell=36771, yield=20, name="Simple Slingshot", reagents={{51708,4}, {42149,2}, {42006,1}}},
+    {spell=36771, yield=1, name="Simple Slingshot", reagents={{51708,4}, {42149,2}, {42006,1}}},
   },
   [42230] = {
-    {spell=36806, yield=1, name="Advanced Camouflage", reagents={{11018,2}, {42149,2}, {42145,10}}},
+    {spell=36806, yield=1, name="Advanced Camouflage", reagents={{11018,2}, {42152,2}, {42145,10}}},
   },
   [42231] = {
     {spell=36749, yield=1, name="Spirited Precision Sickle", reagents={{42112,1}, {19726,8}, {18262,2}, {12803,8}, {10286,8}}},
@@ -3781,12 +3870,6 @@ CraftTreeDB = {
   },
   [46600] = {
     {spell=46600, yield=1, name="Lordaeron Breastplate", reagents={{2840,16}, {818,2}, {3470,3}}},
-  },
-  [47408] = {
-    {spell=51924, yield=1, name="Corrosive Poison", reagents={{8924,3}, {5173,3}, {8925,1}}},
-  },
-  [47409] = {
-    {spell=52576, yield=1, name="Corrosive Poison II", reagents={{8924,3}, {5173,3}, {8925,1}}},
   },
   [47410] = {
     {spell=36929, yield=1, name="Concoction of the Emerald Mongoose", reagents={{13452,1}, {61224,1}, {18256,1}}},
@@ -3830,12 +3913,6 @@ CraftTreeDB = {
   [53015] = {
     {spell=46085, yield=1, name="Gurubashi Gumbo", reagents={{3667,1}, {12202,1}, {12037,2}, {2692,1}, {3713,1}, {159,1}}},
   },
-  [54009] = {
-    {spell=45878, yield=1, name="Dissolvent Poison", reagents={{8924,2}, {2931,3}, {8925,1}}},
-  },
-  [54010] = {
-    {spell=45882, yield=1, name="Dissolvent Poison II", reagents={{8924,3}, {5173,4}, {8925,1}}},
-  },
   [55043] = {
     {spell=37, yield=1, name="Harness of the High Thane", reagents={{15407,6}, {12810,12}, {7081,20}, {7082,8}, {5117,15}, {4480,10}, {14341,4}}},
   },
@@ -3849,7 +3926,7 @@ CraftTreeDB = {
     {spell=36909, yield=1, name="Essence Infused Leather Gloves", reagents={{12810,10}, {61673,4}, {16203,4}, {14341,6}}},
   },
   [55052] = {
-    {spell=36913, yield=1, name="Astronomer Raiments 	", reagents={{4339,4}, {7079,2}, {8343,2}}},
+    {spell=36913, yield=1, name="Astronomer Raiments", reagents={{14048,12}, {12361,2}, {55048,5}, {9210,5}}},
   },
   [55054] = {
     {spell=36911, yield=1, name="Prismatic Scale Barbute", reagents={{8165,20}, {15414,5}, {15415,5}, {15412,5}, {15416,5}, {8170,30}}},
@@ -3861,7 +3938,7 @@ CraftTreeDB = {
     {spell=36907, yield=1, name="Rune-Inscribed Plate Leggings", reagents={{12360,3}, {12655,12}, {12799,4}, {13926,4}, {14341,8}, {7080,6}}},
   },
   [55060] = {
-    {spell=36905, yield=1, name="Grandstaff of the Shen'dralar Elder", reagents={{55252,4}, {12360,2}, {12655,16}, {20725,4}, {12800,6}, {55248,4}}},
+    {spell=36905, yield=1, name="Grandstaff of the Shen'dralar Elder", reagents={{55252,4}, {12360,2}, {12655,16}, {20725,4}, {11291,20}, {12800,6}, {55248,4}}},
   },
   [55141] = {
     {spell=41221, yield=1, name="Ironsun Citrine Ring", reagents={{41332,1}, {3577,2}, {3864,4}, {55246,1}}},
@@ -4022,6 +4099,9 @@ CraftTreeDB = {
   [55244] = {
     {spell=41356, yield=1, name="Gemstone Compendium", reagents={{8170,12}, {10648,20}, {16203,2}, {12655,2}, {7076,3}}},
   },
+  [55248] = {
+    {spell=41758, yield=1, name="Enchanted Gemstone Oil", reagents={{55247,1}, {16203,1}, {11175,1}}},
+  },
   [55255] = {
     {spell=41354, yield=1, name="Skyfire Jewel", reagents={{41321,1}, {55251,3}, {7069,3}}},
   },
@@ -4179,34 +4259,34 @@ CraftTreeDB = {
     {spell=41806, yield=1, name="Crown of the Illustrious Queen", reagents={{3577,32}, {55252,1}, {12364,6}, {12800,8}, {3466,6}, {55248,4}}},
   },
   [55518] = {
-    {spell=57601, yield=1, name="Cosmic Headdress", reagents={{61673,5}, {14342,2}, {14048,6}, {14227,3}}},
+    {spell=57601, yield=1, name="Cosmic Headdress", reagents={{14342,2}, {61673,5}, {14048,6}, {14227,3}}},
   },
   [55519] = {
-    {spell=57603, yield=1, name="Cosmic Mantle", reagents={{61673,4}, {14342,2}, {14048,3}, {14227,4}}},
+    {spell=57603, yield=1, name="Cosmic Mantle", reagents={{14342,2}, {61673,4}, {14048,3}, {14227,4}}},
   },
   [55520] = {
-    {spell=57605, yield=1, name="Cosmic Vest", reagents={{61673,7}, {14342,3}, {14048,8}, {14227,2}}},
+    {spell=57605, yield=1, name="Cosmic Vest", reagents={{14342,3}, {61673,7}, {14048,8}, {14227,2}}},
   },
   [55521] = {
-    {spell=57607, yield=1, name="Cosmic Leggings", reagents={{61673,7}, {14342,3}, {14048,6}, {14227,2}}},
+    {spell=57607, yield=1, name="Cosmic Leggings", reagents={{14342,3}, {61673,7}, {14048,6}, {14227,2}}},
   },
   [55522] = {
-    {spell=57609, yield=1, name="Ethereal Helmet", reagents={{61673,5}, {15407,2}, {12810,8}, {14227,1}}},
+    {spell=57609, yield=1, name="Ethereal Helmet", reagents={{15407,2}, {12810,8}, {61673,5}, {14227,1}}},
   },
   [55523] = {
-    {spell=57611, yield=1, name="Ethereal Shoulder Pads", reagents={{61673,4}, {15407,2}, {12810,7}, {14227,2}}},
+    {spell=57611, yield=1, name="Ethereal Shoulder Pads", reagents={{15407,2}, {12810,7}, {61673,4}, {14227,2}}},
   },
   [55524] = {
-    {spell=57613, yield=1, name="Ethereal Tunic", reagents={{61673,8}, {15407,4}, {12810,12}, {14227,1}}},
+    {spell=57613, yield=1, name="Ethereal Tunic", reagents={{15407,4}, {12810,12}, {61673,8}, {14227,1}}},
   },
   [55525] = {
-    {spell=57615, yield=1, name="Ethereal Leggings", reagents={{61673,6}, {15407,3}, {12810,13}, {14227,2}}},
+    {spell=57615, yield=1, name="Ethereal Leggings", reagents={{15407,3}, {12810,13}, {61673,6}, {14227,2}}},
   },
   [55526] = {
     {spell=57617, yield=1, name="Otherworldly Coif", reagents={{15407,1}, {12360,1}, {61673,6}, {12607,1}}},
   },
   [55527] = {
-    {spell=57619, yield=1, name="Otherworldly Spaulders", reagents={{15407,1}, {12360,1}, {61673,6}, {12607,3}}},
+    {spell=57619, yield=1, name="Otherworldly Spaulders", reagents={{15407,1}, {12360,1}, {61673,5}, {12607,3}}},
   },
   [55528] = {
     {spell=57621, yield=1, name="Otherworldly Breastplate", reagents={{15407,2}, {12360,1}, {61673,6}, {12607,2}}},
@@ -4227,7 +4307,7 @@ CraftTreeDB = {
     {spell=57631, yield=1, name="Reflective Leggings", reagents={{12360,2}, {12655,12}, {61673,7}}},
   },
   [55534] = {
-    {spell=57633, yield=1, name="Ley-Kissed Drape", reagents={{61673,4}, {14342,2}, {14048,6}, {14227,4}, {13926,1}}},
+    {spell=57633, yield=1, name="Ley-Kissed Drape", reagents={{14342,2}, {61673,4}, {14227,4}, {14048,6}, {13926,1}}},
   },
   [56000] = {
     {spell=41627, yield=1, name="Pristine Crystal Gemstone", reagents={{55249,1}, {55151,1}, {55247,1}}},
@@ -4497,7 +4577,7 @@ CraftTreeDB = {
     {spell=46608, yield=1, name="Hypertech Battery Pack", reagents={{10558,1}, {10561,1}, {4404,1}}},
   },
   [60099] = {
-    {spell=46610, yield=1, name="Battery-Powered Crowd Pummeler", reagents={{9449,1}, {60098,5}, {814,2}, {7191,4}, {3829,1}, {4375,6}, {18631,1}}},
+    {spell=46610, yield=1, name="Battery-Powered Crowd Pummeler", reagents={{9449,1}, {60098,1}, {814,2}, {7191,1}, {3829,1}, {4375,6}, {18631,1}}},
   },
   [60287] = {
     {spell=47026, yield=1, name="Rune-Etched Grips", reagents={{12359,12}, {12655,2}, {20520,2}, {12810,2}}},
@@ -4530,7 +4610,7 @@ CraftTreeDB = {
     {spell=47030, yield=1, name="Hateforge Cuirass", reagents={{12359,24}, {11371,1}, {11754,12}, {8170,6}, {20520,2}, {7078,2}}},
   },
   [60575] = {
-    {spell=47031, yield=1, name="Hateforge Leggings", reagents={{12359,16}, {11371,1}, {11754,6}, {7078,2}, {8170,2}}},
+    {spell=47031, yield=1, name="Hateforge Leggings", reagents={{12359,20}, {11371,1}, {11754,8}, {7078,2}, {8170,4}}},
   },
   [60576] = {
     {spell=47032, yield=1, name="Hateforge Belt", reagents={{12359,12}, {7078,2}, {11754,5}, {12810,1}}},
@@ -4587,7 +4667,7 @@ CraftTreeDB = {
     {spell=45451, yield=1, name="Smelt Dreamsteel", reagents={{61198,1}, {3859,1}, {20381,1}}},
   },
   [61224] = {
-    {spell=57131, yield=1, name="Dreamshard Elixir", reagents={{61198,1}, {11176,1}, {8925,1}}},
+    {spell=57131, yield=1, name="Dreamshard Elixir", reagents={{8925,1}, {11176,1}, {61198,1}}},
   },
   [61225] = {
     {spell=57129, yield=1, name="Lucidity Potion", reagents={{730,1}, {13463,1}, {8831,1}, {8925,1}}},
@@ -4640,6 +4720,9 @@ CraftTreeDB = {
   [61649] = {
     {spell=54005, yield=1, name="Pauldrons of the Timbermaw", reagents={{12655,12}, {12360,2}, {7076,6}, {7078,6}}},
   },
+  [61732] = {
+    {spell=57518, yield=1, name="Eternal Dreamstone Shard", reagents={{61197,5}, {61673,25}, {61199,25}, {20725,10}, {13468,5}, {12803,80}}},
+  },
   [61779] = {
     {spell=57163, yield=1, name="Copper Belt Buckle", reagents={{2840,8}, {2880,1}, {3470,2}}},
   },
@@ -4680,7 +4763,7 @@ CraftTreeDB = {
     {spell=46656, yield=1, name="Robe of Sacrifice", reagents={{14048,12}, {14256,20}, {12662,20}, {10285,8}, {7971,4}, {14341,1}, {20520,10}}},
   },
   [65004] = {
-    {spell=46657, yield=1, name="Ornate Bloodstone Dagger", reagents={{12360,14}, {3577,6}, {12938,1}, {11752,1}, {8846,10}, {11382,2}, {12644,4}, {4278,10}}},
+    {spell=46657, yield=1, name="Ornate Bloodstone Dagger", reagents={{12360,14}, {3577,6}, {12938,1}, {11752,1}, {8846,10}, {11382,2}, {12644,4}}},
   },
   [65006] = {
     {spell=46659, yield=1, name="Stormscale Leggings", reagents={{8170,30}, {12810,16}, {20295,1}, {15407,4}, {15415,40}, {7082,12}}},
@@ -4743,7 +4826,7 @@ CraftTreeDB = {
     {spell=46077, yield=1, name="Repaired Electro-Lantern", reagents={{1630,5}, {10561,1}, {4359,1}, {4375,1}, {4404,2}, {10558,2}}},
   },
   [65032] = {
-    {spell=45611, yield=1, name="Agitating Poison", reagents={{2931,2}, {3372,1}}},
+    {spell=45611, yield=1, name="Agitating Poison I", reagents={{2931,2}, {3372,1}}},
   },
   [65035] = {
     {spell=54011, yield=1, name="Flarecore Boots", reagents={{14342,6}, {17010,5}, {17011,4}, {7078,10}, {14227,4}}},
@@ -4760,9 +4843,11 @@ CraftTreeDB = {
   [65039] = {
     {spell=54009, yield=1, name="Fiery Chain Breastplate", reagents={{11371,14}, {17010,6}, {17011,5}}},
   },
+  [68513] = {
+    {spell=1207, yield=1, name="Fried Strider with a Side of Berries", reagents={{42010,1}, {42000,1}, {2692,2}}},
+  },
   [81030] = {
     {spell=41003, yield=1, name="Malachite Ring", reagents={{55156,1}, {774,1}, {55150,1}}},
-    {spell=41577, yield=1, name="Malachite Ring", reagents={{55156,1}, {774,1}}},
   },
   [81031] = {
     {spell=41023, yield=1, name="Bright Copper Necklace", reagents={{2840,6}, {774,2}, {55245,1}}},
@@ -4849,7 +4934,7 @@ CraftTreeDB = {
     {spell=46650, yield=1, name="Pillager's Pantaloons", reagents={{14048,4}, {7077,4}, {14341,2}, {4625,1}}},
   },
   [83309] = {
-    {spell=49551, yield=1, name="Empowering Herbal Salad", reagents={{8838,1}, {22529,1}, {51714,2}}},
+    {spell=49551, yield=1, name="Empowering Herbal Salad", reagents={{36668,1}, {22529,1}, {42000,2}}},
   },
   [83400] = {
     {spell=46625, yield=1, name="Grifter's Cover", reagents={{4304,8}, {4338,4}, {4291,2}, {2605,1}}},
@@ -4858,7 +4943,7 @@ CraftTreeDB = {
     {spell=46624, yield=1, name="Grifter's Tunic", reagents={{4304,12}, {3575,2}, {4291,4}, {2605,2}}},
   },
   [83402] = {
-    {spell=46623, yield=1, name="Grifter's Leggings", reagents={{4304,10}, {4234,2}, {4291,4}, {2605,1}}},
+    {spell=46623, yield=1, name="Grifter's Leggings", reagents={{4304,10}, {4234,2}, {4291,3}, {2605,1}}},
   },
   [83403] = {
     {spell=46622, yield=1, name="Grifter's Belt", reagents={{4234,10}, {4291,1}, {4236,1}}},
@@ -4893,78 +4978,8 @@ CraftTreeDB = {
   [84041] = {
     {spell=45627, yield=1, name="Gilneas Hot Stew", reagents={{12203,1}, {12205,1}, {159,1}}},
   },
-  [93223] = {
-    {spell=65210, yield=1, name="Simple Bronze Katana", reagents={{2841,11}, {3466,2}, {3478,2}, {2319,1}}},
-  },
-  [6218] = {
-    {spell=7421, yield=1, name="Runed Copper Rod", reagents={{6217,1}, {10938,1}, {10940,1}}},
-  },
-  [6339] = {
-    {spell=7795, yield=1, name="Runed Silver Rod", reagents={{1210,1}, {6338,1}, {10939,3}, {10940,6}}},
-  },
-  [11130] = {
-    {spell=13628, yield=1, name="Runed Golden Rod", reagents={{5500,1}, {11082,2}, {11083,2}, {11128,1}}},
-  },
-  [11145] = {
-    {spell=13702, yield=1, name="Runed Truesilver Rod", reagents={{7971,1}, {11135,2}, {11137,2}, {11144,1}}},
-  },
-  [11287] = {
-    {spell=14293, yield=1, name="Lesser Magic Wand", reagents={{4470,1}, {10938,1}}},
-  },
-  [11288] = {
-    {spell=14807, yield=1, name="Greater Magic Wand", reagents={{4470,1}, {10939,1}}},
-  },
-  [11289] = {
-    {spell=14809, yield=1, name="Lesser Mystic Wand", reagents={{11083,1}, {11134,1}, {11291,1}}},
-  },
-  [11290] = {
-    {spell=14810, yield=1, name="Greater Mystic Wand", reagents={{11135,1}, {11137,1}, {11291,1}}},
-  },
-  [11811] = {
-    {spell=15596, yield=1, name="Smoking Heart of the Mountain", reagents={{7078,1}, {11382,1}, {14343,3}}},
-  },
-  [12655] = {
-    {spell=17180, yield=1, name="Enchanted Thorium", reagents={{11176,3}, {12359,1}}},
-  },
-  [12810] = {
-    {spell=17181, yield=1, name="Enchanted Leather", reagents={{8170,1}, {16202,1}}},
-  },
-  [16207] = {
-    {spell=20051, yield=1, name="Runed Arcanite Rod", reagents={{13926,1}, {14343,4}, {14344,2}, {16203,4}, {16204,10}, {16206,1}}},
-  },
-  [17968] = {
-    {spell=22434, yield=1, name="Charged Scale of Onyxia", reagents={{16203,2}, {16204,2}, {17967,1}}},
-  },
-  [20744] = {
-    {spell=25124, yield=1, name="Minor Wizard Oil", reagents={{3371,1}, {10940,2}, {17034,1}}},
-  },
-  [20745] = {
-    {spell=25125, yield=1, name="Minor Mana Oil", reagents={{3372,1}, {11083,3}, {17034,2}}},
-  },
-  [20746] = {
-    {spell=25126, yield=1, name="Lesser Wizard Oil", reagents={{3372,1}, {11137,3}, {17035,2}}},
-  },
-  [20747] = {
-    {spell=25127, yield=1, name="Lesser Mana Oil", reagents={{8831,2}, {8925,1}, {11176,3}}},
-  },
-  [20748] = {
-    {spell=25130, yield=1, name="Brilliant Mana Oil", reagents={{8831,3}, {14344,2}, {18256,1}}},
-  },
-  [20749] = {
-    {spell=25129, yield=1, name="Brilliant Wizard Oil", reagents={{4625,3}, {14344,2}, {18256,1}}},
-  },
-  [20750] = {
-    {spell=25128, yield=1, name="Wizard Oil", reagents={{4625,2}, {8925,1}, {16204,3}}},
-  },
-  [55248] = {
-    {spell=41758, yield=1, name="Enchanted Gemstone Oil", reagents={{11175,1}, {16203,1}, {55247,1}}},
-  },
-  [61732] = {
-    {spell=57518, yield=1, name="Eternal Dreamstone Shard", reagents={{12803,80}, {13468,5}, {20725,10}, {61197,5}, {61199,25}, {61673,25}}},
-  },
 }
-
--- crafts: 1637, unique items: 1629
+-- crafts: 1663, unique items: 1657
 
 -- Enchant data (from LibCrafts; also Data/Enchants.lua)
 CraftTreeEnchantDB = {
