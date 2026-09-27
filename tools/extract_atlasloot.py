@@ -355,7 +355,15 @@ def write_recipes(recipes):
         "-- Do not edit by hand; regenerate with tools/extract_atlasloot.py",
         "CraftTreeDB = {",
     ]
+    collisions = 0
     for item in sorted(by_item):
+        names = set(recipe["name"] for recipe in by_item[item])
+        if len(names) > 1:
+            collisions += 1
+            print(
+                "item %d has %d spell names %s — CraftTree SelectRecipe keeps the one matching GetItemInfo"
+                % (item, len(names), sorted(names))
+            )
         lines.append("  [%d] = {" % item)
         for recipe in by_item[item]:
             reagents = ", ".join("{%d,%d}" % pair for pair in recipe["reagents"])
@@ -364,6 +372,8 @@ def write_recipes(recipes):
                 % (recipe["spell"], recipe["yield"], lua_escape(recipe["name"]), reagents)
             )
         lines.append("  },")
+    if collisions:
+        print("%d item ids are shared by differently named spells" % collisions)
     lines.append("}")
     lines.append("-- crafts: %d, unique items: %d" % (len(recipes), len(by_item)))
     body = "\n".join(lines) + "\n"

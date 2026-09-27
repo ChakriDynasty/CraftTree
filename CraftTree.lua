@@ -7,6 +7,36 @@ CraftTreeDBPC = CraftTreeDBPC or {}
 
 local MAX_DEPTH = 25
 
+-- 4 Light -> 1 Medium, 5 Medium -> 1 Heavy, and so on. Stop at the leather
+-- the recipe actually asks for; do not unroll the whole chain.
+local LEATHER_STOP = {
+	[2934] = true, -- Ruined Leather Scraps
+	[2318] = true, -- Light Leather
+	[2319] = true, -- Medium Leather
+	[4234] = true, -- Heavy Leather
+	[4304] = true, -- Thick Leather
+	[8170] = true, -- Rugged Leather
+}
+
+local LEATHER_STOP_NAMES = {
+	["ruined leather scraps"] = true,
+	["light leather"] = true,
+	["medium leather"] = true,
+	["heavy leather"] = true,
+	["thick leather"] = true,
+	["rugged leather"] = true,
+}
+
+local function LeatherStop(itemId, name)
+	if itemId and LEATHER_STOP[itemId] then
+		return true
+	end
+	if name and LEATHER_STOP_NAMES[string.lower(name)] then
+		return true
+	end
+	return false
+end
+
 local function ItemName(itemId)
 	local name = GetItemInfo(itemId)
 	if name then
@@ -14,7 +44,16 @@ local function ItemName(itemId)
 	end
 	local recipes = CraftTreeDB and CraftTreeDB[itemId]
 	if recipes and recipes[1] and recipes[1].name and recipes[1].name ~= "" then
-		return recipes[1].name
+		name = recipes[1].name
+		local i
+		for i = 2, table.getn(recipes) do
+			local other = recipes[i].name
+			if other and other ~= "" and string.lower(other) ~= string.lower(name) then
+				-- Atlas reused this item id for another spell. Wait for GetItemInfo.
+				return "Unknown Item"
+			end
+		end
+		return name
 	end
 	return "Unknown Item"
 end
@@ -522,6 +561,8 @@ local function IsTransmuteRecipe(recipe)
 end
 
 -- Prefer smelt/craft over transmute. Nil = treat as base mat.
+-- When Atlas stores two spells on one item id, keep the recipe whose name
+-- matches the real item (same rule as aux-VendorCraft pick_product).
 local function SelectRecipe(recipes, itemId, stack)
 	if not recipes or table.getn(recipes) == 0 then
 		return nil
@@ -532,6 +573,17 @@ local function SelectRecipe(recipes, itemId, stack)
 	end
 
 	local i, recipe
+	local itemName = ItemName(itemId)
+	if itemName and itemName ~= "" and itemName ~= "Unknown Item" then
+		local want = string.lower(itemName)
+		for i = 1, table.getn(recipes) do
+			recipe = recipes[i]
+			if recipe.name and string.lower(recipe.name) == want and recipe.reagents and table.getn(recipe.reagents) > 0 then
+				return recipe
+			end
+		end
+	end
+
 	for i = 1, table.getn(recipes) do
 		recipe = recipes[i]
 		if recipe.reagents and table.getn(recipe.reagents) > 0 and not IsTransmuteRecipe(recipe) then
@@ -595,6 +647,12 @@ function CraftTree_Resolve(itemId, need, shopping, depth, stack)
 		produce = need - used
 	end
 	node.short = produce
+
+	if depth > 0 and LeatherStop(itemId, node.name) then
+		node.leaf = true
+		shopping[itemId] = (shopping[itemId] or 0) + need
+		return node, shopping
+	end
 
 	if depth > MAX_DEPTH then
 		node.leaf = true
